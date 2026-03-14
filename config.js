@@ -4,7 +4,7 @@
 
 // Backend proxy URL — all API calls route through this.
 // Replace with your deployed Cloudflare Worker URL.
-export const WORKER_URL = 'https://your-worker.your-subdomain.workers.dev/api';
+export const WORKER_URL = 'https://clinical-sim-api.v-kasula0902.workers.dev/api';
 
 // Model to use for simulations
 export const MODEL = 'claude-sonnet-4-20250514';
