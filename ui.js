@@ -35,6 +35,7 @@ export function goHome(){
   if(ST.simPhase!=='active'||ST.simEnd)window.saveSim();
   ST.setCurrentCaseTopics([]);
   renderRef();
+  const mp=document.getElementById('meds-panel');if(mp)mp.classList.add('mp-hide');
   showPage('home');
 }
 window.goHome=goHome;
@@ -160,16 +161,16 @@ export function resolveMinR(){
 export function onSliderInput(el){
   ST.S.minR=parseInt(el.value);
   document.getElementById('mr-v').textContent=ST.S.minR>15?'15+':ST.S.minR;
-  document.getElementById('mr-rand-btn').style.opacity='0.5';
+  document.getElementById('mr-rand-btn').classList.remove('active');
 }
 window.onSliderInput=onSliderInput;
 
 export function setRandomCaseLen(){
   ST.S.minR=-1;
-  document.getElementById('mr-v').textContent='🎲';
+  document.getElementById('mr-v').textContent='Random';
   document.getElementById('mr-slider').value=8;
-  document.getElementById('mr-rand-btn').style.opacity='1';
-  document.getElementById('mr-rand-btn').style.borderColor='var(--accent-purple)';
+  const btn=document.getElementById('mr-rand-btn');
+  btn.classList.add('active');
 }
 window.setRandomCaseLen=setRandomCaseLen;
 
