@@ -78,7 +78,10 @@
       </div>
       <div class="orders-body" id="orders-body"></div>
       <div class="orders-custom"><input class="orders-custom-input" id="orders-custom-input" placeholder="Type a custom order..." onkeydown="if(event.key==='Enter')addCustomOrder()"><button class="orders-custom-add" onclick="addCustomOrder()">+</button></div>
-      <div class="orders-footer"><button class="orders-submit-btn" id="orders-submit-btn" onclick="submitOrders()">📨 Submit Orders</button></div>
+      <div class="orders-footer">
+        <button class="rsi-open-btn" id="rsi-open-btn" onclick="openRSI()">🫁 RSI & Vent Settings</button>
+        <button class="orders-submit-btn" id="orders-submit-btn" onclick="submitOrders()">📨 Submit Orders</button>
+      </div>
     </div>
     <div class="chat-main">
       <div class="ma" id="ma"><div class="typing-ind" id="ti"><span></span><span></span><span></span></div></div>
@@ -153,6 +156,27 @@
   <div id="proc-subcats"></div>
   <div id="proc-detail"></div>
 </div></div>
+<!-- RSI / Ventilator Settings Modal -->
+<div class="rsi-overlay" id="rsi-overlay" onclick="if(event.target===this)closeRSI()">
+  <div class="rsi-modal">
+    <div class="rsi-hdr"><h3>🫁 RSI & Ventilator Settings</h3><button onclick="closeRSI()">✕</button></div>
+    <div class="rsi-body">
+      <div class="rsi-section">
+        <div class="rsi-section-title">Rapid Sequence Intubation</div>
+        <div class="rsi-row"><label>Induction Agent</label><select id="rsi-induction"><option value="">Select...</option><option value="etomidate">Etomidate</option><option value="ketamine">Ketamine</option><option value="propofol">Propofol</option><option value="midazolam">Midazolam</option></select><input type="text" id="rsi-induction-dose" placeholder="Dose (e.g. 20mg or 0.3mg/kg)" class="rsi-dose"></div>
+        <div class="rsi-row"><label>Paralytic</label><select id="rsi-paralytic"><option value="">Select...</option><option value="rocuronium">Rocuronium</option><option value="succinylcholine">Succinylcholine</option><option value="vecuronium">Vecuronium</option><option value="cisatracurium">Cisatracurium</option></select><input type="text" id="rsi-paralytic-dose" placeholder="Dose (e.g. 100mg or 1.2mg/kg)" class="rsi-dose"></div>
+        <div class="rsi-row"><label>Pre-treatment (optional)</label><input type="text" id="rsi-pretreat" placeholder="e.g. fentanyl 100mcg, lidocaine 1.5mg/kg..." class="rsi-dose" style="flex:2;"></div>
+      </div>
+      <div class="rsi-section">
+        <div class="rsi-section-title">Initial Ventilator Settings</div>
+        <div class="rsi-row"><label>Mode</label><select id="rsi-vent-mode"><option value="">Select...</option><option value="AC/VC">AC/Volume Control</option><option value="AC/PC">AC/Pressure Control</option><option value="SIMV">SIMV</option><option value="PSV">Pressure Support</option></select></div>
+        <div class="rsi-row"><label>Tidal Volume</label><input type="text" id="rsi-tv" placeholder="e.g. 450 mL or 6 mL/kg" class="rsi-dose"><label>Rate</label><input type="text" id="rsi-rr" placeholder="e.g. 16" class="rsi-dose" style="width:60px;"></div>
+        <div class="rsi-row"><label>FiO₂</label><input type="text" id="rsi-fio2" placeholder="e.g. 100%" class="rsi-dose" style="width:70px;"><label>PEEP</label><input type="text" id="rsi-peep" placeholder="e.g. 5" class="rsi-dose" style="width:60px;"></div>
+      </div>
+    </div>
+    <div class="rsi-footer"><button class="rsi-submit-btn" id="rsi-submit-btn" onclick="submitRSI()">Submit RSI & Vent Settings</button></div>
+  </div>
+</div>
 <!-- Procedure Practice Chatbot Modal -->
 <div class="proc-chat-overlay" id="proc-chat-overlay" onclick="if(event.target===this)closeProcChat()">
   <div class="proc-chat-modal">

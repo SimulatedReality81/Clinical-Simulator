@@ -42,7 +42,17 @@ FORMAT:
 2. **After Questions:** The simulation begins when you (the user) receive the patient. Present new information ONLY as the user orders it — if they order labs, return those results; if they order imaging, return those findings.
 3. **ORDERS SYSTEM:** The user will submit orders through an orders panel. When orders are submitted, acknowledge them and return results for the ordered tests. If the user orders something inappropriate or unnecessary, return the results anyway but note it in feedback if applicable. NEVER suggest what to order.
 4. **HOME MEDICATION RECONCILIATION:** You MUST include a HOME_MEDS block with an ANSWER_KEY in your first response (see format below). Some meds should clearly need to be held and some continued given the acute presentation. The user will make continue/hold/change decisions before the simulation progresses.
-5. **Progression:** As the case develops, new issues arise that require management decisions. The case should build complexity over time.${isICU?'\n6. **ICU-SPECIFIC:** Include ventilator management, vasopressor titration, sedation, invasive monitoring, organ support decisions as appropriate. Focus on critical care management principles.':''}
+5. **Progression:** As the case develops, new issues arise that require management decisions. The case should build complexity over time.${isICU?`
+6. **ICU-SPECIFIC:** Include ventilator management, vasopressor titration, sedation, invasive monitoring, organ support decisions as appropriate. Focus on critical care management principles.
+7. **INTUBATION PROTOCOL:** When the clinical scenario calls for intubation (respiratory failure, airway protection), do NOT just intubate the patient automatically. Instead:
+   - Present the clinical situation that necessitates intubation
+   - State "The patient requires intubation. Please provide your RSI medications and doses, and your initial ventilator settings."
+   - Wait for the user to submit their RSI plan through the RSI panel (they will type or submit: induction agent + dose, paralytic + dose, and initial vent settings: mode, TV, RR, FiO2, PEEP)
+   - After they submit, evaluate their choices based on the patient's weight and clinical situation:
+     * Correct choices: Brief ✅ confirmation with reasoning
+     * Incorrect/suboptimal choices: ⚠️ feedback explaining the better choice and why, then continue AS IF correct medications were given
+   - Common RSI agents to evaluate: Etomidate 0.3mg/kg (hemodynamically stable), ketamine 1-2mg/kg (bronchospasm, hemodynamically unstable), propofol 1-2mg/kg (avoid in hypotension). Paralytics: Succinylcholine 1.5mg/kg (rapid onset but avoid in hyperK, burns, crush), rocuronium 1.2mg/kg (preferred in most situations).
+   - Vent settings to evaluate: TV should be 6-8 mL/kg IBW (6 if ARDS), RR 14-18, FiO2 start 100% then wean, PEEP 5-8 (higher if ARDS/hypoxemia).`:''}
 6. **If the resident misses important orders** (e.g. DVT prophylaxis, appropriate diet, key labs), do NOT prompt them — reflect it in feedback.`;
 
   const typeLabel=isA?'ACLS':isGenIM?'Internal Medicine':isICU?'Critical Care Medicine':'Rapid Response';
@@ -64,6 +74,8 @@ ${ez?`Straightforward. ${isA?'Standard rhythms: VFib, pVTach, PEA, Asystole.':'C
 ## STAFF NAMES: Do NOT use names for any team members (nurses, respiratory therapists, pharmacy, etc.). Refer to them only by role: "the nurse," "the respiratory therapist," "the pharmacist," "the tech." Only the user (${nm}) should be addressed by name.
 
 ## VITAL SIGNS: Whenever you report a blood pressure, ALWAYS include the MAP. Format: "BP 85/60 (MAP 68)" — no exceptions.
+
+## PATIENT WEIGHT: You MUST include the patient's weight in kg in the opening scenario description. Use a realistic weight for the patient's demographics. Format: "Weight: XX kg". This is essential for weight-based medication dosing.
 
 ## SIMULATION FLOW
 1. **Opening:** Vivid scenario. Setting, patient, how response was called, initial picture.
@@ -319,103 +331,47 @@ function submitHomeMeds(){
 }
 window.submitHomeMeds=submitHomeMeds;
 
-// ── Orders Panel ──
+// ── Orders Panel (Subcategorized) ──
 const ORDER_CATALOG={
   labs:{
-    'CBC':'Complete blood count',
-    'BMP':'Basic metabolic panel (Na, K, Cl, CO2, BUN, Cr, Glucose, Ca)',
-    'CMP':'Comprehensive metabolic panel',
-    'Magnesium':'Serum magnesium level',
-    'Phosphorus':'Serum phosphorus level',
-    'Lactate':'Serum lactate',
-    'Troponin':'Troponin I/T',
-    'BNP/NT-proBNP':'B-type natriuretic peptide',
-    'PT/INR':'Prothrombin time / INR',
-    'PTT':'Partial thromboplastin time',
-    'D-dimer':'D-dimer level',
-    'Fibrinogen':'Fibrinogen level',
-    'LFTs':'Liver function tests (AST, ALT, ALP, Tbili)',
-    'Lipase':'Serum lipase',
-    'TSH':'Thyroid stimulating hormone',
-    'Free T4':'Free thyroxine',
-    'Cortisol':'Random cortisol level',
-    'Procalcitonin':'Procalcitonin level',
-    'Blood cultures x2':'Two sets of blood cultures',
-    'Urinalysis + culture':'UA with reflex culture',
-    'Urine drug screen':'Urine toxicology',
-    'ABG':'Arterial blood gas',
-    'VBG':'Venous blood gas',
-    'Type and screen':'Blood type and antibody screen',
-    'A1c':'Hemoglobin A1c',
-    'ESR/CRP':'Inflammatory markers',
-    'LDH':'Lactate dehydrogenase',
-    'Ammonia':'Serum ammonia',
-    'Haptoglobin':'Haptoglobin level'
+    'Chemistry':{'BMP':'Basic metabolic panel','CMP':'Comprehensive metabolic panel','Magnesium':'Serum magnesium','Phosphorus':'Serum phosphorus','Lactate':'Serum lactate','LDH':'Lactate dehydrogenase','Ammonia':'Serum ammonia','A1c':'Hemoglobin A1c','Lipase':'Serum lipase','LFTs':'AST, ALT, ALP, Tbili','Uric acid':'Serum uric acid'},
+    'Hematology':{'CBC':'Complete blood count','PT/INR':'Prothrombin time / INR','PTT':'Partial thromboplastin time','D-dimer':'D-dimer level','Fibrinogen':'Fibrinogen level','Haptoglobin':'Haptoglobin level','Reticulocyte count':'Reticulocyte count','Type and screen':'Blood type and antibody screen','Type and cross':'Crossmatch for transfusion','Peripheral smear':'Manual blood smear review'},
+    'Cardiac':{'Troponin':'High-sensitivity troponin','BNP/NT-proBNP':'B-type natriuretic peptide'},
+    'Endocrine':{'TSH':'Thyroid stimulating hormone','Free T4':'Free thyroxine','Cortisol (random)':'Random cortisol','Cortisol (AM)':'Morning cortisol','ACTH':'Adrenocorticotropic hormone'},
+    'Inflammatory':{'ESR/CRP':'Inflammatory markers','Procalcitonin':'Procalcitonin level','Ferritin':'Serum ferritin'},
+    'Cultures':{'Blood cultures x2':'Two sets from separate sites','Urinalysis + culture':'UA with reflex culture','Urine culture only':'Urine culture without UA','Sputum culture':'Sputum Gram stain and culture','Wound culture':'Wound swab for culture','Anaerobic culture':'Anaerobic culture (specify site)','Fungal blood culture':'Blood culture for fungi','AFB culture':'Mycobacterial culture','Stool culture':'Stool bacterial culture','C. diff PCR':'Clostridioides difficile toxin PCR'},
+    'Blood Gas':{'ABG':'Arterial blood gas','VBG':'Venous blood gas'},
+    'Toxicology':{'Urine drug screen':'Urine toxicology panel','Acetaminophen level':'Serum acetaminophen','Salicylate level':'Serum salicylate','Ethanol level':'Serum ethanol','Osmolality (serum)':'Serum osmolality'}
   },
   imaging:{
-    'CXR (portable)':'Portable chest X-ray',
-    'CXR (PA/lateral)':'Standard chest X-ray 2-view',
-    'CT Head w/o contrast':'Non-contrast CT head',
-    'CT Chest w/ contrast':'CT chest with IV contrast',
-    'CTA Chest (PE protocol)':'CT angiography for PE',
-    'CT Abdomen/Pelvis w/ contrast':'CT abd/pelvis with contrast',
-    'CT Abdomen/Pelvis w/o contrast':'CT abd/pelvis without contrast',
-    'RUQ Ultrasound':'Right upper quadrant ultrasound',
-    'Echocardiogram (TTE)':'Transthoracic echocardiogram',
-    'CTPA + CT Aortogram':'Combined PE and aortic protocol',
-    'MRI Brain':'MRI of the brain',
-    'Doppler U/S (lower extremity)':'Venous duplex of legs',
-    'KUB':'Kidney-ureter-bladder X-ray',
-    'CT Angiography (head/neck)':'CTA head and neck'
+    'X-Ray':{'CXR (portable)':'Portable chest X-ray','CXR (PA/lateral)':'Standard 2-view chest X-ray','KUB':'Kidney-ureter-bladder X-ray','Abdominal X-ray (upright)':'Abdomen AP upright'},
+    'CT':{'CT Head w/o contrast':'Non-contrast CT head','CT Head w/ contrast':'CT head with IV contrast','CT Chest w/ contrast':'CT chest with contrast','CTA Chest (PE protocol)':'CT angiography for PE','CT Abdomen/Pelvis w/ contrast':'CT A/P with contrast','CT Abdomen/Pelvis w/o contrast':'CT A/P without contrast','CTPA + CT Aortogram':'Combined PE and aortic protocol','CTA Head/Neck':'CT angiography head and neck','CT Neck w/ contrast':'CT soft tissue neck','CT Pancreas protocol':'Dedicated pancreatic CT'},
+    'MRI':{'MRI Brain w/ and w/o':'Brain MRI with and without gadolinium','MRI Brain w/o contrast':'Brain MRI without contrast','MRI C-spine':'Cervical spine MRI','MRI T-spine':'Thoracic spine MRI','MRI L-spine':'Lumbar spine MRI','MRI Abdomen':'Abdominal MRI','MRCP':'MR cholangiopancreatography'},
+    'Ultrasound':{'RUQ Ultrasound':'Right upper quadrant US','Renal Ultrasound':'Renal and bladder US','Echocardiogram (TTE)':'Transthoracic echocardiogram','Echocardiogram (TEE)':'Transesophageal echo','Doppler U/S (legs)':'Venous duplex lower extremity','Doppler U/S (arms)':'Venous duplex upper extremity','FAST exam':'Focused assessment with sonography','Thyroid ultrasound':'Thyroid US','Testicular ultrasound':'Testicular US'},
+    'Other Imaging':{'V/Q scan':'Ventilation-perfusion scan','HIDA scan':'Hepatobiliary scan','Nuclear stress test':'Myocardial perfusion imaging'}
   },
   meds:{
-    'NS 500mL bolus':'Normal saline 500mL IV bolus',
-    'LR 1L bolus':'Lactated Ringer\'s 1L IV bolus',
-    'NS maintenance (125mL/hr)':'NS at maintenance rate',
-    'Heparin drip (VTE protocol)':'Heparin infusion per protocol',
-    'Enoxaparin (DVT ppx)':'Enoxaparin 40mg SQ daily',
-    'SQ heparin (DVT ppx)':'Heparin 5000u SQ q8h',
-    'Pantoprazole 40mg IV':'PPI IV',
-    'Acetaminophen 650mg PO PRN':'Tylenol for pain/fever',
-    'Ondansetron 4mg IV PRN':'Zofran for nausea',
-    'Morphine 2mg IV PRN':'Opioid for pain',
-    'Insulin sliding scale':'Regular insulin per sliding scale',
-    'Vancomycin (dose per pharmacy)':'Vancomycin IV',
-    'Piperacillin-tazobactam 4.5g IV':'Zosyn IV',
-    'Ceftriaxone 2g IV':'Ceftriaxone IV',
-    'Azithromycin 500mg IV':'Azithromycin IV',
-    'Metoprolol 5mg IV':'IV beta-blocker',
-    'Furosemide 40mg IV':'IV loop diuretic',
-    'Norepinephrine drip':'Vasopressor infusion'
-  },
-  other:{
-    'Telemetry monitoring':'Continuous cardiac monitoring',
-    'Continuous pulse oximetry':'SpO2 monitoring',
-    'Strict I&Os':'Intake and output monitoring',
-    'Foley catheter':'Urinary catheter placement',
-    'NPO':'Nothing by mouth',
-    'Cardiac diet':'Heart-healthy diet',
-    'Regular diet':'Regular diet',
-    'Diabetic diet':'Carb-controlled diet',
-    'Fall precautions':'Fall risk protocol',
-    'Bed rest':'Strict bed rest',
-    'Activity as tolerated':'Ambulate as tolerated',
-    'O2 via nasal cannula (titrate)':'Supplemental oxygen',
-    '12-lead EKG':'Standard 12-lead electrocardiogram',
-    'Central line placement':'Central venous catheter',
-    'Arterial line placement':'Arterial catheter for monitoring'
+    'IV Fluids':{'NS 500mL bolus':'Normal saline 500mL IV bolus','NS 1L bolus':'Normal saline 1L IV bolus','LR 1L bolus':'Lactated Ringer\'s 1L IV bolus','NS maintenance (125mL/hr)':'NS at maintenance rate','D5W 1L':'5% dextrose in water','D5 1/2NS + 20 KCl':'Maintenance fluid with potassium','3% Hypertonic saline':'For severe symptomatic hyponatremia'},
+    'Antibiotics':{'Vancomycin (per pharmacy)':'Vancomycin IV','Piperacillin-tazobactam 4.5g IV':'Zosyn IV q8h extended infusion','Ceftriaxone 2g IV':'Ceftriaxone IV daily','Cefepime 2g IV':'Cefepime IV q8h','Meropenem 1g IV':'Meropenem IV q8h','Azithromycin 500mg IV':'Azithromycin IV daily','Metronidazole 500mg IV':'Flagyl IV q8h','Doxycycline 100mg IV':'Doxycycline IV q12h','Ampicillin 2g IV':'Ampicillin IV q4h','TMP-SMX (IV)':'TMP-SMX IV','Fluconazole 400mg IV':'Fluconazole IV','Micafungin 100mg IV':'Echinocandin','Acyclovir IV':'Acyclovir IV'},
+    'Vasopressors/Inotropes':{'Norepinephrine drip':'Start 0.1 mcg/kg/min, titrate to MAP ≥65','Vasopressin 0.04 U/min':'Fixed-dose vasopressin','Epinephrine drip':'Epinephrine infusion','Phenylephrine drip':'Pure alpha agonist','Dobutamine drip':'Inotrope 2-20 mcg/kg/min','Milrinone drip':'PDE3 inhibitor'},
+    'GI/Antiemetics':{'Pantoprazole 40mg IV':'PPI IV','Pantoprazole drip (80mg + 8mg/hr)':'PPI drip for GI bleed','Ondansetron 4mg IV PRN':'Zofran for nausea','Metoclopramide 10mg IV':'Reglan','Octreotide bolus + drip':'For variceal bleeding'},
+    'Pain/Sedation':{'Acetaminophen 650mg PO PRN':'Tylenol','Morphine 2mg IV PRN':'Morphine','Hydromorphone 0.5mg IV PRN':'Dilaudid','Fentanyl 25-50mcg IV PRN':'Short-acting opioid','Ketorolac 15mg IV':'IV NSAID','Propofol drip':'Sedation','Dexmedetomidine drip':'Precedex','Midazolam drip':'Benzodiazepine sedation'},
+    'Cardiac':{'Metoprolol 5mg IV':'IV beta-blocker','Diltiazem bolus + drip':'IV CCB for rate control','Amiodarone 150mg IV':'IV antiarrhythmic','Heparin drip (VTE protocol)':'Heparin infusion','Furosemide 40mg IV':'IV loop diuretic','Nitroglycerin drip':'For ACS or HTN emergency','Nicardipine drip':'For HTN emergency','Aspirin 325mg':'Antiplatelet load'},
+    'Endocrine':{'Insulin sliding scale':'Regular insulin per scale','Insulin drip':'Continuous infusion (DKA/HHS)','Dextrose 50% (D50) 25g IV':'For hypoglycemia','Hydrocortisone 100mg IV':'Stress-dose steroids','Dexamethasone 4mg IV':'For edema/inflammation'},
+    'Electrolytes':{'KCl 40mEq PO':'Oral potassium','KCl 20mEq IV':'IV potassium in 100mL','MgSO4 2g IV':'IV magnesium','Calcium gluconate 1g IV':'IV calcium','NaHCO3 drip (150mEq/L)':'Bicarb drip'},
+    'Other Meds':{'Albuterol nebulizer':'Bronchodilator','Ipratropium nebulizer':'Anticholinergic bronchodilator','Epinephrine 0.3mg IM':'For anaphylaxis','Naloxone 0.4mg IV':'Opioid reversal','Flumazenil 0.2mg IV':'Benzo reversal','Thiamine 500mg IV':'Wernicke prophylaxis'}
   },
   consults:{
-    'Consult: Cardiology':'Cardiology consultation',
-    'Consult: Pulmonology':'Pulmonology consultation',
-    'Consult: GI':'Gastroenterology consultation',
-    'Consult: ID':'Infectious disease consultation',
-    'Consult: Surgery':'Surgical consultation',
-    'Consult: Nephrology':'Nephrology consultation',
-    'Consult: Neurology':'Neurology consultation',
-    'Consult: Hematology':'Hematology/Oncology consultation',
-    'Consult: ICU/Critical Care':'ICU transfer/co-management',
-    'Consult: Palliative Care':'Palliative care consultation'
+    'Medical Consults':{'Consult: Cardiology':'Cardiology','Consult: Pulmonology':'Pulmonology','Consult: GI/Hepatology':'GI / Hepatology','Consult: Nephrology':'Nephrology','Consult: ID':'Infectious Disease','Consult: Hematology':'Hematology','Consult: Oncology':'Medical Oncology','Consult: Neurology':'Neurology','Consult: Endocrinology':'Endocrinology','Consult: Rheumatology':'Rheumatology','Consult: Allergy/Immunology':'Allergy & Immunology','Consult: Psychiatry':'Psychiatry','Consult: Palliative Care':'Palliative Care','Consult: PM&R':'Physical Medicine & Rehab','Consult: ICU/Critical Care':'ICU transfer/co-management','Consult: Toxicology':'Medical Toxicology'},
+    'Surgical Consults':{'Consult: General Surgery':'General Surgery','Consult: Trauma Surgery':'Trauma / Acute Care Surgery','Consult: Vascular Surgery':'Vascular Surgery','Consult: CT Surgery':'Cardiothoracic Surgery','Consult: Neurosurgery':'Neurosurgery','Consult: Orthopedics':'Orthopedic Surgery','Consult: Urology':'Urology','Consult: ENT':'Otolaryngology (ENT)','Consult: Ophthalmology':'Ophthalmology','Consult: OB/GYN':'Obstetrics & Gynecology','Consult: IR':'Interventional Radiology','Consult: Interventional Cardiology':'Cath lab / structural'}
+  },
+  other:{
+    'Monitoring':{'Telemetry monitoring':'Continuous cardiac monitoring','Continuous pulse oximetry':'SpO2 monitoring','Strict I&Os':'Intake and output monitoring','Arterial line placement':'Arterial catheter','12-lead EKG':'Standard 12-lead ECG','Continuous EEG':'Continuous EEG monitoring'},
+    'DVT Prophylaxis':{'Enoxaparin 40mg SQ daily':'LMWH prophylaxis','SQ heparin 5000u q8h':'UFH prophylaxis','SCDs (sequential compression)':'Mechanical DVT prophylaxis','Enoxaparin + SCDs':'Combined chemical + mechanical'},
+    'Diet':{'NPO':'Nothing by mouth','Clear liquid diet':'Clear liquids only','Regular diet':'Regular diet','Cardiac diet':'Heart-healthy / low sodium','Diabetic diet':'Carb-controlled diet','Renal diet':'Low K / low phos','Tube feeds (per nutrition)':'Enteral nutrition via NGT/OGT'},
+    'Activity & Safety':{'Fall precautions':'Fall risk protocol','Bed rest':'Strict bed rest','Activity as tolerated':'Ambulate as tolerated','Aspiration precautions':'HOB 30, thickened liquids','Seizure precautions':'Padded rails, O2 at bedside','Restraints':'Per policy (reassess q1-2h)'},
+    'Lines & Access':{'Central line placement':'Central venous catheter','PICC line':'Peripherally inserted central catheter','Foley catheter':'Urinary catheter','NG/OG tube':'Nasogastric/orogastric tube','Chest tube placement':'Thoracostomy tube'},
+    'Respiratory':{'O2 via nasal cannula':'Supplemental oxygen (titrate)','High-flow nasal cannula':'HFNC (set flow + FiO2)','BiPAP':'Non-invasive ventilation','CPAP':'Continuous positive airway pressure'}
   }
 };
 
@@ -439,38 +395,52 @@ window.switchOrderTab=switchOrderTab;
 
 function renderOrderItems(){
   const body=document.getElementById('orders-body');
-  const items=ORDER_CATALOG[currentOrderTab]||{};
-  let html=Object.entries(items).map(([name,desc])=>{
-    const key=currentOrderTab+':'+name;
-    const sel=selectedOrders.has(key)?'selected':'';
-    const isConsult=currentOrderTab==='consults';
-    const reasonVal=consultReasons[key]||'';
-    let itemHtml=`<div class="order-item ${sel}" onclick="toggleOrder('${esc(key)}',this)"><span class="order-check">${sel?'✓':''}</span><div><div style="font-weight:600;">${esc(name)}</div><div style="font-size:.58rem;color:var(--text-dim);margin-top:.05rem;">${esc(desc)}</div></div></div>`;
-    if(isConsult&&sel){
-      itemHtml+=`<div class="consult-reason-wrap"><input class="consult-reason-input" placeholder="Reason for consult..." value="${esc(reasonVal)}" onclick="event.stopPropagation()" oninput="updateConsultReason('${esc(key)}',this.value)"></div>`;
-    }
-    return itemHtml;
-  }).join('');
-  // Show custom orders for this tab
+  const tabData=ORDER_CATALOG[currentOrderTab]||{};
+  const isConsult=currentOrderTab==='consults';
+  let html='';
+  const firstVal=Object.values(tabData)[0];
+  const hasSubcats=firstVal&&typeof firstVal==='object';
+  if(hasSubcats){
+    Object.entries(tabData).forEach(([subcat,items])=>{
+      html+=`<div class="order-subcat-hdr" onclick="toggleOrderSubcat(this)">${esc(subcat)} <span class="order-subcat-arrow">▼</span></div>`;
+      html+=`<div class="order-subcat-body">`;
+      Object.entries(items).forEach(([name,desc])=>{
+        const key=currentOrderTab+':'+name;
+        const sel=selectedOrders.has(key)?'selected':'';
+        const reasonVal=consultReasons[key]||'';
+        html+=`<div class="order-item ${sel}" onclick="toggleOrder('${esc(key)}')"><span class="order-check">${sel?'✓':''}</span><div><div style="font-weight:600;">${esc(name)}</div><div style="font-size:.55rem;color:var(--text-dim);">${esc(desc)}</div></div></div>`;
+        if(isConsult&&sel){html+=`<div class="consult-reason-wrap"><input class="consult-reason-input" placeholder="Reason for consult..." value="${esc(reasonVal)}" onclick="event.stopPropagation()" oninput="updateConsultReason('${esc(key)}',this.value)"></div>`;}
+      });
+      html+=`</div>`;
+    });
+  } else {
+    Object.entries(tabData).forEach(([name,desc])=>{
+      const key=currentOrderTab+':'+name;const sel=selectedOrders.has(key)?'selected':'';
+      html+=`<div class="order-item ${sel}" onclick="toggleOrder('${esc(key)}')"><span class="order-check">${sel?'✓':''}</span><div><div style="font-weight:600;">${esc(name)}</div><div style="font-size:.55rem;color:var(--text-dim);">${esc(desc)}</div></div></div>`;
+    });
+  }
   customOrders.filter(o=>o.tab===currentOrderTab).forEach(o=>{
-    const key='custom:'+o.name;
-    const sel=selectedOrders.has(key)?'selected':'';
-    html+=`<div class="order-item ${sel}" onclick="toggleOrder('${esc(key)}',this)"><span class="order-check">${sel?'✓':''}</span><div><div style="font-weight:600;">${esc(o.name)}</div></div><span class="order-custom-tag">Custom</span></div>`;
+    const key='custom:'+o.name;const sel=selectedOrders.has(key)?'selected':'';
+    html+=`<div class="order-item ${sel}" onclick="toggleOrder('${esc(key)}')"><span class="order-check">${sel?'✓':''}</span><div><div style="font-weight:600;">${esc(o.name)}</div></div><span class="order-custom-tag">Custom</span></div>`;
   });
   body.innerHTML=html;
 }
+
+function toggleOrderSubcat(hdr){hdr.classList.toggle('collapsed');const bod=hdr.nextElementSibling;if(bod)bod.classList.toggle('collapsed');}
+window.toggleOrderSubcat=toggleOrderSubcat;
 
 let consultReasons={};
 function updateConsultReason(key,val){consultReasons[key]=val;}
 window.updateConsultReason=updateConsultReason;
 
-function toggleOrder(key,el){
+function toggleOrder(key){
   if(window._ordersSubmitted)return;
   if(selectedOrders.has(key)){selectedOrders.delete(key);delete consultReasons[key];}
   else{selectedOrders.add(key);}
   renderOrderItems();
 }
 window.toggleOrder=toggleOrder;
+
 
 function addCustomOrder(){
   const inp=document.getElementById('orders-custom-input');
@@ -509,6 +479,38 @@ async function submitOrders(){
   },500);
 }
 window.submitOrders=submitOrders;
+
+// ── RSI & Ventilator Settings ──
+function openRSI(){document.getElementById('rsi-overlay').style.display='flex';}
+window.openRSI=openRSI;
+
+function closeRSI(){document.getElementById('rsi-overlay').style.display='none';}
+window.closeRSI=closeRSI;
+
+async function submitRSI(){
+  const induction=document.getElementById('rsi-induction').value;
+  const inductionDose=document.getElementById('rsi-induction-dose').value.trim();
+  const paralytic=document.getElementById('rsi-paralytic').value;
+  const paralyticDose=document.getElementById('rsi-paralytic-dose').value.trim();
+  const pretreat=document.getElementById('rsi-pretreat').value.trim();
+  const ventMode=document.getElementById('rsi-vent-mode').value;
+  const tv=document.getElementById('rsi-tv').value.trim();
+  const rr=document.getElementById('rsi-rr').value.trim();
+  const fio2=document.getElementById('rsi-fio2').value.trim();
+  const peep=document.getElementById('rsi-peep').value.trim();
+
+  if(!induction||!paralytic||!ventMode){alert('Please select at least an induction agent, paralytic, and vent mode.');return;}
+
+  closeRSI();
+  let rsiMsg=`RSI Plan:\n- Induction: ${induction}${inductionDose?' '+inductionDose:''}\n- Paralytic: ${paralytic}${paralyticDose?' '+paralyticDose:''}`;
+  if(pretreat)rsiMsg+=`\n- Pre-treatment: ${pretreat}`;
+  rsiMsg+=`\n\nInitial Vent Settings:\n- Mode: ${ventMode}\n- Tidal Volume: ${tv||'not specified'}\n- Rate: ${rr||'not specified'}\n- FiO₂: ${fio2||'not specified'}\n- PEEP: ${peep||'not specified'}`;
+
+  addMsg(rsiMsg,'user');
+  if(ST.simPhase==='active'){ST.incUaCount();updateProgress();}
+  await callAPI([{role:'user',content:`I am proceeding with intubation. Here are my RSI medications and initial ventilator settings:\n\n${rsiMsg}\n\nPlease evaluate my RSI medication choices and doses based on the patient's weight and clinical situation, then evaluate my initial ventilator settings. Provide specific feedback on each choice (correct ✅ or needs improvement ⚠️ with explanation). Then continue the simulation post-intubation with the patient on the ventilator.`}]);
+}
+window.submitRSI=submitRSI;
 
 window.toggleMedAction=function(medId,action){
   const med=window._homeMeds?.find(m=>m.id===medId);if(!med)return;
