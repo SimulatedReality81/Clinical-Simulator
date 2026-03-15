@@ -3,7 +3,7 @@
 // ══════════════════════════════════════════════════════════════
 import { WORKER_URL, MODEL, MAX_TOKENS } from './config.js';
 import * as ST from './state.js';
-import { esc, fmtMd, showT, updIS, addMsg, addSysMsg, showPage, showActionRow, showBackHomeBtn, isGr, useTP, resolveMinR, updateProgress, addHE, togOrders } from './ui.js';
+import { esc, fmtMd, showT, updIS, addMsg, addSysMsg, showPage, showActionRow, showBackHomeBtn, isGr, useTP, resolveMinR, updateProgress, resetProgress, addHE, togOrders } from './ui.js';
 import { renderRef } from './references.js';
 import { saveSc, saveSim } from './scores.js';
 
@@ -88,7 +88,7 @@ ${ez?`Straightforward. ${isA?'Standard rhythms: VFib, pVTach, PEA, Asystole.':'C
    - If the user misses something important, do NOT prompt them — let it be reflected in feedback/grading
 
 3. **Realism:** Evolve based on actions. Wrong actions → realistic consequences.
-4. **Length:** The case should aim for approximately ${mr} user responses as a MAXIMUM. As the case approaches this limit, begin wrapping up the scenario naturally — resolve the acute problem and bring the case to a clear conclusion. Do NOT introduce new complications after reaching 80% of this target. The complexity of the case should match the allotted length.
+4. **Length:** The case should aim for approximately ${mr} user responses as a MAXIMUM. As the case approaches this limit, begin wrapping up the scenario naturally — resolve the acute problem and bring the case to a clear conclusion. Do NOT introduce new complications after reaching 70% of this target (roughly ${Math.round(mr*0.7)} responses). By 90% of the target, the case MUST be concluding with "SIMULATION COMPLETE." The complexity of the case should match the allotted length.
 5. **SIMULATION END PROTOCOL:**
    - When ROSC is achieved or the scenario reaches its natural conclusion, clearly state "**SIMULATION COMPLETE**" 
    - Provide a brief outcome summary
@@ -191,7 +191,7 @@ export async function startSim(){
   ST.S.selCatsRR=[...document.querySelectorAll('#rr-cats .cc.active')].map(x=>x.dataset.cat);
   ST.S.selCatsACLS=[...document.querySelectorAll('#acls-cats .cc.active')].map(x=>x.dataset.cat);
   ST.S.selCatsICU=[...document.querySelectorAll('#icu-cats .cc.active')].map(x=>x.dataset.cat);
-  ST.setSysP(buildSP());ST.resetForNewSim();
+  ST.setSysP(buildSP());ST.resetForNewSim();resetProgress();
   const wm=document.getElementById('wrapup-shown');if(wm)wm.remove();
   window._medsSubmitted=false;window._ordersSubmitted=false;
 
@@ -530,8 +530,8 @@ async function callAPI(msgs,init=false){
     // Score
     const sm=txt.match(/FINAL_SCORE:(\d+)/);
     if(sm){saveSc(parseInt(sm[1]));ST.setSimPhase('complete');ST.setFbDone(true);showBackHomeBtn();}
-    // Sim complete detection
-    if(ST.simPhase==='active'&&/SIMULATION COMPLETE|simulation complete/i.test(txt)){
+    // Sim complete detection — check 'active' (natural end) or 'ended' (user triggered endEarly)
+    if((ST.simPhase==='active'||ST.simPhase==='ended')&&/SIMULATION COMPLETE|simulation complete/i.test(txt)){
       ST.setSimPhase('ended');ST.setSimEnd(true);
       document.getElementById('progress-fill').style.width='100%';
       document.getElementById('progress-lbl').textContent='100%';
@@ -626,8 +626,12 @@ export async function endEarly(){
   ST.setSimEnd(true);ST.setSimPhase('ended');
   document.getElementById('end-btn').style.display='none';
   document.getElementById('inp-area').style.display='none';
+  document.getElementById('progress-fill').style.width='100%';
+  document.getElementById('progress-lbl').textContent='100%';
   addMsg('End the simulation now.','user');
   await callAPI([{role:'user',content:'End simulation now. State the outcome with "SIMULATION COMPLETE" then stop. I will request debrief and feedback separately.'}]);
+  // Fallback: if callAPI response didn't trigger showDebriefBtn, force it
+  if(ST.simPhase==='ended'){showDebriefBtn();}
 }
 window.endEarly=endEarly;
 
