@@ -167,7 +167,7 @@ window.onSliderInput=onSliderInput;
 
 export function setRandomCaseLen(){
   ST.S.minR=-1;
-  document.getElementById('mr-v').textContent='Random';
+  document.getElementById('mr-v').textContent='—';
   document.getElementById('mr-slider').value=8;
   const btn=document.getElementById('mr-rand-btn');
   btn.classList.add('active');
