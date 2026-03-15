@@ -36,6 +36,7 @@ export function goHome(){
   ST.setCurrentCaseTopics([]);
   renderRef();
   const mp=document.getElementById('meds-panel');if(mp)mp.classList.add('mp-hide');
+  const op=document.getElementById('orders-panel');if(op)op.classList.add('op-hide');
   showPage('home');
 }
 window.goHome=goHome;
@@ -120,7 +121,7 @@ export function tog(btn){
   const gm={fb:'fb',diff:'diff',grade:'grade',scType:'scType',tp:'tp',inputMode:'inputMode'};
   ST.S[gm[g]||g]=v;
   btn.parentElement.querySelectorAll('.tb').forEach(b=>b.className='tb');
-  const cm={fb:{realtime:'a-fb-rt',end:'a-fb-end'},diff:{easy:'a-d-easy',hard:'a-d-hard'},grade:{graded:'a-graded',ungraded:'a-ungraded'},scType:{acls:'a-acls',rapid:'a-rapid',genim:'a-rapid'},tp:{on:'a-tp-on',off:'a-tp-off'},inputMode:{freetext:'a-freetext',mc:'a-mc'}};
+  const cm={fb:{realtime:'a-fb-rt',end:'a-fb-end'},diff:{easy:'a-d-easy',hard:'a-d-hard'},grade:{graded:'a-graded',ungraded:'a-ungraded'},scType:{acls:'a-acls',rapid:'a-rapid',genim:'a-rapid',genicu:'a-genicu'},tp:{on:'a-tp-on',off:'a-tp-off'},inputMode:{freetext:'a-freetext',mc:'a-mc'}};
   btn.classList.add(cm[g]?.[v]||'');
   refreshUI();
 }
@@ -133,48 +134,80 @@ export function isGr(){return ST.S.grade==='graded';}
 export function useTP(){return ST.S.diff==='hard'&&ST.S.scType==='acls'&&ST.S.tp==='on';}
 
 export function refreshUI(){
-  const h=ST.S.diff==='hard',a=ST.S.scType==='acls',r=ST.S.scType==='rapid',g=ST.S.scType==='genim';
+  const h=ST.S.diff==='hard',a=ST.S.scType==='acls',r=ST.S.scType==='rapid',g=ST.S.scType==='genim',icu=ST.S.scType==='genicu';
   const rrLabel=document.getElementById('rr-cats-label');
   if(rrLabel){const maxCatText=g?'up to 4':'up to 2';const arrow=rrLabel.querySelector('.collapse-arrow');rrLabel.innerHTML=`IM Categories (select ${maxCatText}) `;if(arrow){rrLabel.appendChild(arrow);}}
   const rrActive=document.querySelectorAll('#rr-cats .cc.active');
   const maxCats=g?4:2;
   if(rrActive.length>maxCats){[...rrActive].slice(maxCats).forEach(c=>c.classList.remove('active'));ST.S.selCatsRR=[...document.querySelectorAll('#rr-cats .cc.active')].map(x=>x.dataset.cat);}
-  document.getElementById('grade-g').classList.toggle('hidden',!(h||r||g));
+  document.getElementById('grade-g').classList.toggle('hidden',!(h||r||g||icu));
   document.getElementById('pgy-g').classList.toggle('hidden',ST.S.grade!=='graded');
-  if(!h&&!r&&!g)ST.S.grade='ungraded';
+  if(!h&&!r&&!g&&!icu)ST.S.grade='ungraded';
   document.getElementById('tp-g').classList.toggle('hidden',!(h&&a));if(!(h&&a))ST.S.tp='off';
-  document.getElementById('rr-cats-group').classList.toggle('hidden',!(r||g));document.getElementById('acls-cats-group').classList.toggle('hidden',!a);
+  document.getElementById('rr-cats-group').classList.toggle('hidden',!(r||g));
+  document.getElementById('acls-cats-group').classList.toggle('hidden',!a);
+  document.getElementById('icu-cats-group').classList.toggle('hidden',!icu);
   if(!r&&!g){ST.S.selCatsRR=[];document.querySelectorAll('#rr-cats .cc.active').forEach(c=>c.classList.remove('active'));}
   if(!a){ST.S.selCatsACLS=[];document.querySelectorAll('#acls-cats .cc.active').forEach(c=>c.classList.remove('active'));}
-  const titles={'acls':'ACLS Code Blue Simulator','rapid':'Rapid Response Simulator','genim':'General IM Simulator'};
+  if(!icu){ST.S.selCatsICU=[];document.querySelectorAll('#icu-cats .cc.active').forEach(c=>c.classList.remove('active'));}
+  const titles={'acls':'ACLS Code Blue Simulator','rapid':'Rapid Response Simulator','genim':'General IM Simulator','genicu':'General ICU Simulator'};
   document.getElementById('home-title').textContent=titles[ST.S.scType]||'ACLS Code Blue Simulator';
   document.getElementById('case-len-g').classList.toggle('hidden',ST.S.diff==='easy');
 }
 
-// ── Case length ──
+// ── Case length (sim length toggle) ──
 export function resolveMinR(){
   if(ST.S.diff==='easy')return 5;
-  if(ST.S.minR===-1)return Math.floor(Math.random()*9)+6;
-  return ST.S.minR>15?16:ST.S.minR;
+  const map={short:5,medium:10,long:16};
+  return map[ST.S.simLength]||10;
 }
 
-export function onSliderInput(el){
-  ST.S.minR=parseInt(el.value);
-  const vEl=document.getElementById('mr-v');
-  vEl.textContent=ST.S.minR>15?'15+':ST.S.minR;
-  vEl.style.display='';
-  document.getElementById('mr-rand-btn').classList.remove('active');
+export function togSimLen(btn){
+  const v=btn.dataset.v;
+  ST.S.simLength=v;
+  btn.parentElement.querySelectorAll('.tb').forEach(b=>b.className='tb');
+  const cm={short:'a-simlen-short',medium:'a-simlen-med',long:'a-simlen-long'};
+  btn.classList.add(cm[v]||'');
 }
-window.onSliderInput=onSliderInput;
+window.togSimLen=togSimLen;
 
-export function setRandomCaseLen(){
-  ST.S.minR=-1;
-  document.getElementById('mr-v').style.display='none';
-  document.getElementById('mr-slider').value=8;
-  const btn=document.getElementById('mr-rand-btn');
-  btn.classList.add('active');
+// ── Default name (localStorage) ──
+export function initDefaultName(){
+  const saved=localStorage.getItem('sim_default_name');
+  if(saved){
+    document.getElementById('doc-name').value=saved;
+    const btn=document.getElementById('default-name-btn');
+    btn.classList.add('saved');btn.textContent='★ Default';
+  }
 }
-window.setRandomCaseLen=setRandomCaseLen;
+
+export function toggleDefaultName(){
+  const inp=document.getElementById('doc-name');
+  const btn=document.getElementById('default-name-btn');
+  const name=inp.value.trim();
+  if(btn.classList.contains('saved')){
+    localStorage.removeItem('sim_default_name');
+    btn.classList.remove('saved');btn.textContent='☆ Default';
+  } else {
+    if(!name){alert('Enter your name first.');return;}
+    localStorage.setItem('sim_default_name',name);
+    btn.classList.add('saved');btn.textContent='★ Default';
+  }
+}
+window.toggleDefaultName=toggleDefaultName;
+
+// ── Meds panel toggle ──
+export function toggleMedsPanel(){
+  const mp=document.getElementById('meds-panel');
+  mp.classList.toggle('mp-hide');
+}
+window.toggleMedsPanel=toggleMedsPanel;
+
+// ── Orders panel toggle ──
+export function togOrders(){
+  document.getElementById('orders-panel').classList.toggle('op-hide');
+}
+window.togOrders=togOrders;
 
 // ── Collapsible category panels ──
 export function toggleCatPanel(id){const el=document.getElementById(id);const arrow=el.parentElement.previousElementSibling?.querySelector('.collapse-arrow');if(!arrow)return;const isOpen=arrow.classList.contains('open');arrow.classList.toggle('open');el.style.display=isOpen?'none':'flex';}
