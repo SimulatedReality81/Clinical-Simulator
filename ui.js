@@ -234,14 +234,20 @@ export function togVoice(){
 window.togVoice=togVoice;
 
 // ── Progress bar ──
+let _maxPct=0; // high-water mark — progress never goes backwards
+
+export function resetProgress(){_maxPct=0;}
+
 export function updateProgress(){
   const maxR=resolveMinR();
-  const pct=Math.min(100,Math.round((ST.uaCount/maxR)*100));
-  document.getElementById('progress-fill').style.width=pct+'%';
-  document.getElementById('progress-lbl').textContent=pct+'%';
-  if(pct>=100&&ST.simPhase==='active'&&!document.getElementById('wrapup-shown')){
+  const rawPct=Math.min(100,Math.round((ST.uaCount/maxR)*100));
+  // Never allow progress to decrease
+  if(rawPct>_maxPct)_maxPct=rawPct;
+  document.getElementById('progress-fill').style.width=_maxPct+'%';
+  document.getElementById('progress-lbl').textContent=_maxPct+'%';
+  if(_maxPct>=90&&ST.simPhase==='active'&&!document.getElementById('wrapup-shown')){
     const marker=document.createElement('span');marker.id='wrapup-shown';marker.style.display='none';document.body.appendChild(marker);
-    addSysMsg('📊 You\'ve reached the target case length. You may wrap up now without penalty'+(isGr()?' to your grade':'')+', or continue if the case naturally has more to go.');
+    addSysMsg('📊 You\'ve reached ~90% of the target case length. You may wrap up now without penalty'+(isGr()?' to your grade':'')+', or continue if the case naturally has more to go.');
     showActionRow([{label:'✅ Wrap Up Simulation',cls:'debrief-action',fn:'endEarly()'}]);
   }
 }
