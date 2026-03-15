@@ -6,11 +6,14 @@ export const IM_CATS=[{n:'Cardiovascular Disease',p:14},{n:'Pulmonary Disease',p
 
 export const HT_CATS=['Hypovolemia','Hypoxia','Hydrogen Ion (Acidosis)','Hyperkalemia','Hypokalemia','Hypothermia','Hypoglycemia','Toxins/Tablets','Tamponade (Cardiac)','Tension Pneumothorax','Thrombosis (MI)','Thromboembolism (PE)','Trauma'];
 
+export const CCM_CATS=[{n:'Shock',p:15},{n:'Renal, Endocrine, and Metabolic Disorders',p:13},{n:'Cardiovascular Disorders',p:13},{n:'Pulmonary Disease',p:17},{n:'Infectious Disease',p:10},{n:'Gastrointestinal Disorders',p:5},{n:'Neurologic Disorders',p:9},{n:'Hematologic and Oncologic Disorders',p:5},{n:'Surgical Specialties',p:5},{n:'Pharmacology and Toxicology',p:5},{n:'Critical Care Ultrasound',p:2}];
+
 export const MAX_CATS_ACLS=4;
 export const MAX_CATS_RR=2;
+export const MAX_CATS_ICU=3;
 
 // Settings
-export let S={fb:'realtime',diff:'easy',grade:'ungraded',scType:'acls',tp:'on',docName:'',prompt:'',minR:-1,selCatsRR:[],selCatsACLS:[],lastACLSCause:'',inputMode:'freetext',pgy:'PGY-1'};
+export let S={fb:'realtime',diff:'easy',grade:'ungraded',scType:'acls',tp:'on',docName:'',prompt:'',simLength:'medium',selCatsRR:[],selCatsACLS:[],selCatsICU:[],lastACLSCause:'',inputMode:'freetext',pgy:'PGY-1'};
 
 // Conversation & simulation state
 export let conv=[];
