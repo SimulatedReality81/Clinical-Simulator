@@ -3,21 +3,28 @@
 // ══════════════════════════════════════════════════════════════
 import { WORKER_URL, MODEL, MAX_TOKENS } from './config.js';
 import * as ST from './state.js';
-import { esc, fmtMd, showT, updIS, addMsg, addSysMsg, showPage, showActionRow, showBackHomeBtn, isGr, useTP, resolveMinR, updateProgress, addHE } from './ui.js';
+import { esc, fmtMd, showT, updIS, addMsg, addSysMsg, showPage, showActionRow, showBackHomeBtn, isGr, useTP, resolveMinR, updateProgress, addHE, togOrders } from './ui.js';
 import { renderRef } from './references.js';
 import { saveSc, saveSim } from './scores.js';
 
 // ── Helpers ──
 function wRC(){const pool=ST.IM_CATS;const t=pool.reduce((s,c)=>s+c.p,0);let r=Math.random()*t;for(const c of pool){r-=c.p;if(r<=0)return c.n;}return pool[pool.length-1].n;}
+function wRC_ICU(){const pool=ST.CCM_CATS;const t=pool.reduce((s,c)=>s+c.p,0);let r=Math.random()*t;for(const c of pool){r-=c.p;if(r<=0)return c.n;}return pool[pool.length-1].n;}
 function pickACLSCause(){const avail=ST.HT_CATS.filter(c=>c!==ST.S.lastACLSCause);const pick=avail[Math.floor(Math.random()*avail.length)];ST.S.lastACLSCause=pick;return pick;}
 
 // ── System Prompt Builder ──
 function buildSP(){
-  const ez=ST.S.diff==='easy',rt=ST.S.fb==='realtime',gr=isGr(),tp=useTP(),nm=ST.S.docName?`Dr. ${ST.S.docName}`:'Doctor',isA=ST.S.scType==='acls',isGenIM=ST.S.scType==='genim',cp=ST.S.prompt.trim(),mr=resolveMinR();
+  const ez=ST.S.diff==='easy',rt=ST.S.fb==='realtime',gr=isGr(),tp=useTP(),nm=ST.S.docName?`Dr. ${ST.S.docName}`:'Doctor',isA=ST.S.scType==='acls',isGenIM=ST.S.scType==='genim',isICU=ST.S.scType==='genicu',cp=ST.S.prompt.trim(),mr=resolveMinR();
   let catInst='';
   if(isA){
     if(ST.S.selCatsACLS.length>0)catInst=`User wants a scenario involving: ${ST.S.selCatsACLS.join(', ')}. Build around one of these.`;
     else if(!cp){const cause=pickACLSCause();catInst=`Generate a scenario caused by: **${cause}**. Never repeat the same cause consecutively.`;}
+  }else if(isICU){
+    if(ST.S.selCatsICU.length>0){
+      if(ST.S.selCatsICU.length>1)catInst=`User selected ${ST.S.selCatsICU.length} CCM categories: ${ST.S.selCatsICU.join(', ')}. Create a COMPLEX ICU patient who has active issues from EACH of these categories simultaneously.`;
+      else catInst=`User wants a CCM scenario in: ${ST.S.selCatsICU[0]}.`;
+    }
+    else if(!cp){const cat=wRC_ICU();catInst=`Generate a scenario in: **${cat}**. Use CCM board weighted distribution.`;}
   }else{
     if(ST.S.selCatsRR.length>0){
       if(ST.S.selCatsRR.length>1)catInst=`User selected ${ST.S.selCatsRR.length} categories: ${ST.S.selCatsRR.join(', ')}. Create a COMPLEX patient who has active issues from EACH of these categories simultaneously. The patient should require the resident to address problems from all ${ST.S.selCatsRR.length} disciplines during the case.`;
@@ -25,19 +32,22 @@ function buildSP(){
     }
     else if(!cp){const cat=wRC();catInst=`Generate a scenario in: **${cat}**. Use IM board weighted distribution.`;}
   }
-  const typeLabel=isA?'ACLS':isGenIM?'Internal Medicine':'Rapid Response';
-  const typeDesc=isA?'ACLS CODE BLUE':isGenIM?'GENERAL INTERNAL MEDICINE — ED ADMISSION':'RAPID RESPONSE';
-  const typeExpl=isA?'Cardiac arrest → ACLS algorithms → ROSC or termination.':isGenIM?`ED ADMISSION SIMULATION — General IM Clinical Case
 
-You are the medicine resident receiving a new admission from the ED. The scenario begins with a sign-out call from the ED provider who presents the patient with a brief history, key findings, and initial ED workup. 
+  const admissionInstructions=`ED ADMISSION SIMULATION — ${isICU?'ICU':'General IM'} Clinical Case
+
+You are the ${isICU?'ICU fellow/resident':'medicine resident'} receiving a new ${isICU?'ICU':'floor/stepdown'} admission from the ED. The scenario begins with a sign-out call from the ED provider.
 
 FORMAT:
-1. **ED Sign-Out Opening:** Start as an ED provider calling to give you a sign-out. Present the patient conversationally: chief complaint, brief history, relevant PMH, key vitals, ED exam findings, initial labs/imaging already done, and what the ED has started. Then ask: "Any questions for me before I send them up?"
-2. **After Questions:** The simulation begins when you (the user) receive the patient on the floor/stepdown. Present new information as it becomes available (nursing notes, repeat vitals, additional labs, imaging results).
-3. **Order Sets:** The user must determine what admission orders to place: diet, activity, IV access, monitoring, DVT prophylaxis, medications (home meds to continue/hold, new medications), labs, imaging, and consults. Do NOT prompt them on what to order.
-4. **Progression:** As the case develops, new issues arise that require management decisions. The case should build complexity over time.
-5. **This is NOT a rapid response or emergency.** The patient is being admitted — time pressure is moderate, not critical. Focus on clinical reasoning, differential diagnosis, appropriate workup, and evidence-based management.
-6. **If the resident misses important orders** (e.g. DVT prophylaxis, appropriate diet, key labs), do NOT prompt them — reflect it in feedback.`:'Acute deterioration. Focus on recognition, stabilization, escalation. May progress to arrest if mismanaged.';
+1. **ED Sign-Out Opening:** Start as an ED provider calling to give you a sign-out. Present the patient conversationally: chief complaint, brief history, relevant PMH, key vitals, ED exam findings, and what the ED has started. DO NOT provide lab results or imaging findings — the user will order their own workup. Mention only that "labs are pending" or "we drew a panel" without giving results.
+2. **After Questions:** The simulation begins when you (the user) receive the patient. Present new information ONLY as the user orders it — if they order labs, return those results; if they order imaging, return those findings.
+3. **ORDERS SYSTEM:** The user will submit orders through an orders panel. When orders are submitted, acknowledge them and return results for the ordered tests. If the user orders something inappropriate or unnecessary, return the results anyway but note it in feedback if applicable. NEVER suggest what to order.
+4. **HOME MEDICATION RECONCILIATION:** You MUST include a HOME_MEDS block with an ANSWER_KEY in your first response (see format below). Some meds should clearly need to be held and some continued given the acute presentation. The user will make continue/hold/change decisions before the simulation progresses.
+5. **Progression:** As the case develops, new issues arise that require management decisions. The case should build complexity over time.${isICU?'\n6. **ICU-SPECIFIC:** Include ventilator management, vasopressor titration, sedation, invasive monitoring, organ support decisions as appropriate. Focus on critical care management principles.':''}
+6. **If the resident misses important orders** (e.g. DVT prophylaxis, appropriate diet, key labs), do NOT prompt them — reflect it in feedback.`;
+
+  const typeLabel=isA?'ACLS':isGenIM?'Internal Medicine':isICU?'Critical Care Medicine':'Rapid Response';
+  const typeDesc=isA?'ACLS CODE BLUE':isGenIM?'GENERAL INTERNAL MEDICINE — ED ADMISSION':isICU?'GENERAL ICU — ED ADMISSION':'RAPID RESPONSE';
+  const typeExpl=isA?'Cardiac arrest → ACLS algorithms → ROSC or termination.':(isGenIM||isICU)?admissionInstructions:'Acute deterioration. Focus on recognition, stabilization, escalation. May progress to arrest if mismanaged.';
 
   const libCtx=window._libContext||'';
   const libInst=libCtx?'\n## INSTITUTION-SPECIFIC CONTEXT\nThe following are institution-specific documents uploaded by the user. Incorporate relevant protocols, antibiograms, and clinical pathways into the simulation when appropriate:\n'+libCtx.substring(0,12000)+'\n':'';
@@ -59,11 +69,11 @@ ${ez?`Straightforward. ${isA?'Standard rhythms: VFib, pVTach, PEA, Asystole.':'C
 1. **Opening:** Vivid scenario. Setting, patient, how response was called, initial picture.
 2. **HOME MEDICATIONS LIST:** In your VERY FIRST response, you MUST include a structured list of the patient's home medications. This list should be realistic and relevant to the patient's medical history. Format it as a special block:
    HOME_MEDS_START
-   MED: [Drug Name] | [Dose & Frequency] | [Indication]
-   MED: [Drug Name] | [Dose & Frequency] | [Indication]
+   MED: [Drug Name] | [Dose & Frequency] | [Indication] | [CORRECT_ACTION: continue/hold/change] | [REASON: 1 sentence why]
+   MED: [Drug Name] | [Dose & Frequency] | [Indication] | [CORRECT_ACTION: continue/hold/change] | [REASON: 1 sentence why]
    ...
    HOME_MEDS_END
-   Include 6-12 medications that are realistic for the patient's age and comorbidities. Some should clearly need to be continued, some held, and some changed given the acute presentation. This block will be parsed and displayed in a side panel for the user to make decisions on.
+   Include 6-12 medications that are realistic for the patient's age and comorbidities. IMPORTANT: At least 2-3 medications MUST clearly need to be HELD given the acute presentation (e.g. holding ACE inhibitor in AKI, holding metformin before contrast, holding anticoagulant pre-procedure). The CORRECT_ACTION and REASON fields are used for feedback — they will NOT be shown to the user until they submit their decisions. This block will be parsed and displayed in a side panel for the user to make decisions on.
 3. **Decision Points:** After each segment, STOP and ask ONLY neutral prompts:
    - "What would you like to do next, ${nm}?"
    - "What are your orders?"
@@ -178,23 +188,25 @@ Begin now.`;
 export async function startSim(){
   ST.S.docName=document.getElementById('doc-name').value.trim();
   ST.S.prompt=document.getElementById('custom-prompt').value.trim();
-  if(ST.S.minR!==-1)ST.S.minR=parseInt(document.getElementById('mr-slider').value);
   ST.S.selCatsRR=[...document.querySelectorAll('#rr-cats .cc.active')].map(x=>x.dataset.cat);
   ST.S.selCatsACLS=[...document.querySelectorAll('#acls-cats .cc.active')].map(x=>x.dataset.cat);
+  ST.S.selCatsICU=[...document.querySelectorAll('#icu-cats .cc.active')].map(x=>x.dataset.cat);
   ST.setSysP(buildSP());ST.resetForNewSim();
   const wm=document.getElementById('wrapup-shown');if(wm)wm.remove();
+  window._medsSubmitted=false;window._ordersSubmitted=false;
 
   showPage('chat');
-  const titleMap={'acls':'Code Blue Simulation','rapid':'Rapid Response Simulation','genim':'General IM Simulation'};
+  const titleMap={'acls':'Code Blue Simulation','rapid':'Rapid Response Simulation','genim':'General IM Simulation','genicu':'General ICU Simulation'};
   document.getElementById('ct').textContent=titleMap[ST.S.scType]||'Simulation';
 
   // Badges
-  const bb=document.getElementById('ch-badges');const a=ST.S.scType==='acls';
-  const typeLabels={'acls':'ACLS','rapid':'RR','genim':'Gen IM'};
-  let bg=`<span class="badge badge-${a?'acls':'rapid'}">${typeLabels[ST.S.scType]}</span><span class="badge badge-${ST.S.fb==='realtime'?'fb-rt':'fb-end'}">${ST.S.fb==='realtime'?'RT':'End'}</span><span class="badge badge-${ST.S.diff==='easy'?'easy':'hard'}">${ST.S.diff}</span><span class="badge badge-${ST.S.inputMode==='mc'?'mc':'ft'}">${ST.S.inputMode==='mc'?'MC':'Free Text'}</span>`;
+  const bb=document.getElementById('ch-badges');const a=ST.S.scType==='acls';const icu=ST.S.scType==='genicu';
+  const typeLabels={'acls':'ACLS','rapid':'RR','genim':'Gen IM','genicu':'Gen ICU'};
+  const badgeType=a?'acls':icu?'genicu':'rapid';
+  let bg=`<span class="badge badge-${badgeType}">${typeLabels[ST.S.scType]}</span><span class="badge badge-${ST.S.fb==='realtime'?'fb-rt':'fb-end'}">${ST.S.fb==='realtime'?'RT':'End'}</span><span class="badge badge-${ST.S.diff==='easy'?'easy':'hard'}">${ST.S.diff}</span><span class="badge badge-${ST.S.inputMode==='mc'?'mc':'ft'}">${ST.S.inputMode==='mc'?'MC':'Free Text'}</span>`;
   bg+=`<span class="badge badge-${isGr()?'graded':'ungraded'}">${isGr()?'Graded':'Ungraded'}</span>`;
   if(useTP())bg+=`<span class="badge badge-tp">TP</span>`;
-  const selCats=a?ST.S.selCatsACLS:ST.S.selCatsRR;
+  const selCats=a?ST.S.selCatsACLS:icu?ST.S.selCatsICU:ST.S.selCatsRR;
   if(ST.S.prompt.trim()){bg+=`<span class="badge" style="background:rgba(168,85,247,.15);color:var(--accent-purple);max-width:none;white-space:normal;line-height:1.3;" title="${ST.S.prompt.trim()}">"${ST.S.prompt.trim()}"</span>`;}
   else if(selCats.length>0){bg+=`<span class="badge" style="background:rgba(6,182,212,.15);color:var(--accent-cyan);max-width:none;white-space:normal;line-height:1.3;">${selCats.join(' + ')}</span>`;}
   else{bg+=`<span class="badge" style="background:rgba(100,116,139,.15);color:var(--text-dim);">Random</span>`;}
@@ -221,11 +233,21 @@ export async function startSim(){
   const mp=document.getElementById('meds-panel');
   mp.classList.remove('mp-hide');
   document.getElementById('meds-body').innerHTML='<div style="font-size:.7rem;color:var(--text-dim);padding:.5rem;text-align:center;">Waiting for patient data...</div>';
+  document.getElementById('meds-footer').style.display='none';
+
+  // Orders panel — show for IM/ICU sims
+  const op=document.getElementById('orders-panel');
+  const ob=document.getElementById('orders-btn');
+  if(ST.S.scType==='genim'||ST.S.scType==='genicu'){
+    op.classList.add('op-hide');ob.style.display='';
+    initOrdersPanel();
+  } else {op.classList.add('op-hide');ob.style.display='none';}
 
   // Set MGH reference topics
   let caseKeywords=[];
   if(ST.S.scType==='acls'){caseKeywords=['Cardiology','ACLS','EKG','Atrial','QTc','Tachycardia','Bradycardia','Wide Complex','Heart Failure','Cardiac','Coronary','Pericardial','Aortic','Syncope','Mechanical Circulatory'];if(ST.S.selCatsACLS.length>0)caseKeywords=[...caseKeywords,...ST.S.selCatsACLS];}
   else if(ST.S.scType==='rapid'){const rrBase=['Sepsis','Shock','Respiratory','Hypoxemia','Mechanical Ventilation','Vasopressor','Acid-Base','Potassium','Sodium'];caseKeywords=ST.S.selCatsRR.length>0?[...rrBase,...ST.S.selCatsRR.map(c=>c.split(' ').slice(0,2).join(' '))]:rrBase;}
+  else if(ST.S.scType==='genicu'){const icuBase=['Shock','Ventilation','Vasopressor','Sepsis','ARDS','Sedation','AKI','Acid-Base'];caseKeywords=ST.S.selCatsICU.length>0?[...icuBase,...ST.S.selCatsICU.map(c=>c.split(' ').slice(0,2).join(' '))]:icuBase;}
   else{caseKeywords=ST.S.selCatsRR.length>0?ST.S.selCatsRR.map(c=>c.split(' ').slice(0,2).join(' ')):[];}
   if(ST.S.prompt.trim()){caseKeywords=[...caseKeywords,...ST.S.prompt.trim().split(/\s+/).filter(w=>w.length>4)];}
   ST.setCurrentCaseTopics(caseKeywords);
@@ -241,7 +263,10 @@ function parseAndRenderHomeMeds(block){
   const lines=block.trim().split('\n').filter(l=>l.startsWith('MED:'));
   const meds=lines.map((l,i)=>{
     const parts=l.replace('MED:','').split('|').map(s=>s.trim());
-    return {id:i,name:parts[0]||'Unknown',details:parts[1]||'',indication:parts[2]||'',status:null,changeText:''};
+    const correctRaw=(parts[3]||'').replace(/CORRECT_ACTION:\s*/i,'').toLowerCase().trim();
+    const correct=correctRaw.startsWith('hold')?'hold':correctRaw.startsWith('change')?'change':'continue';
+    const reason=(parts[4]||'').replace(/REASON:\s*/i,'').trim();
+    return {id:i,name:parts[0]||'Unknown',details:parts[1]||'',indication:parts[2]||'',correctAction:correct,reason:reason,status:null,changeText:''};
   });
   const body=document.getElementById('meds-body');
   body.innerHTML='';
@@ -251,7 +276,213 @@ function parseAndRenderHomeMeds(block){
     body.appendChild(div);
   });
   window._homeMeds=meds;
+  document.getElementById('meds-footer').style.display='';
 }
+
+// ── Submit Home Meds (med rec with feedback) ──
+function submitHomeMeds(){
+  if(!window._homeMeds||window._medsSubmitted)return;
+  const meds=window._homeMeds;
+  const allDecided=meds.every(m=>m.status!==null);
+  if(!allDecided){alert('Please make a decision (continue, hold, or change) for every medication before submitting.');return;}
+  window._medsSubmitted=true;
+  document.getElementById('meds-submit-btn').disabled=true;
+
+  // Show feedback on each med
+  meds.forEach(med=>{
+    const item=document.getElementById('med-'+med.id);
+    const btns=item.querySelectorAll('.med-action-btn');
+    btns.forEach(b=>{b.style.pointerEvents='none';b.style.opacity='.6';});
+    const isCorrect=(med.status===med.correctAction)||(med.status==='change'&&med.correctAction==='change');
+    item.classList.remove('med-continue','med-hold','med-change');
+    item.classList.add(isCorrect?'med-correct':'med-incorrect');
+    const fb=document.createElement('div');
+    fb.className='med-feedback '+(isCorrect?'fb-correct':'fb-incorrect');
+    fb.textContent=isCorrect?`✅ ${med.reason||'Correct decision.'}`:`❌ Should ${med.correctAction}. ${med.reason||''}`;
+    item.appendChild(fb);
+  });
+
+  // Build summary for AI context
+  const summary=meds.map(m=>`${m.name}: user chose ${m.status}, correct was ${m.correctAction}${m.status===m.correctAction?' ✅':' ❌'}`).join('\n');
+  const correct=meds.filter(m=>m.status===m.correctAction).length;
+  addSysMsg(`📋 Med Rec submitted: ${correct}/${meds.length} correct. You can minimize the panel to free up space.`);
+
+  // Inform the AI about the med rec decisions silently
+  ST.pushConv({role:'user',content:`[SYSTEM: Med rec completed. Results:\n${summary}\nScore: ${correct}/${meds.length}. Continue the simulation — the patient is now on the floor/in the ICU. Do NOT re-present the medications or comment on the med rec unless asked.]`});
+}
+window.submitHomeMeds=submitHomeMeds;
+
+// ── Orders Panel ──
+const ORDER_CATALOG={
+  labs:{
+    'CBC':'Complete blood count',
+    'BMP':'Basic metabolic panel (Na, K, Cl, CO2, BUN, Cr, Glucose, Ca)',
+    'CMP':'Comprehensive metabolic panel',
+    'Magnesium':'Serum magnesium level',
+    'Phosphorus':'Serum phosphorus level',
+    'Lactate':'Serum lactate',
+    'Troponin':'Troponin I/T',
+    'BNP/NT-proBNP':'B-type natriuretic peptide',
+    'PT/INR':'Prothrombin time / INR',
+    'PTT':'Partial thromboplastin time',
+    'D-dimer':'D-dimer level',
+    'Fibrinogen':'Fibrinogen level',
+    'LFTs':'Liver function tests (AST, ALT, ALP, Tbili)',
+    'Lipase':'Serum lipase',
+    'TSH':'Thyroid stimulating hormone',
+    'Free T4':'Free thyroxine',
+    'Cortisol':'Random cortisol level',
+    'Procalcitonin':'Procalcitonin level',
+    'Blood cultures x2':'Two sets of blood cultures',
+    'Urinalysis + culture':'UA with reflex culture',
+    'Urine drug screen':'Urine toxicology',
+    'ABG':'Arterial blood gas',
+    'VBG':'Venous blood gas',
+    'Type and screen':'Blood type and antibody screen',
+    'A1c':'Hemoglobin A1c',
+    'ESR/CRP':'Inflammatory markers',
+    'LDH':'Lactate dehydrogenase',
+    'Ammonia':'Serum ammonia',
+    'Haptoglobin':'Haptoglobin level'
+  },
+  imaging:{
+    'CXR (portable)':'Portable chest X-ray',
+    'CXR (PA/lateral)':'Standard chest X-ray 2-view',
+    'CT Head w/o contrast':'Non-contrast CT head',
+    'CT Chest w/ contrast':'CT chest with IV contrast',
+    'CTA Chest (PE protocol)':'CT angiography for PE',
+    'CT Abdomen/Pelvis w/ contrast':'CT abd/pelvis with contrast',
+    'CT Abdomen/Pelvis w/o contrast':'CT abd/pelvis without contrast',
+    'RUQ Ultrasound':'Right upper quadrant ultrasound',
+    'Echocardiogram (TTE)':'Transthoracic echocardiogram',
+    'CTPA + CT Aortogram':'Combined PE and aortic protocol',
+    'MRI Brain':'MRI of the brain',
+    'Doppler U/S (lower extremity)':'Venous duplex of legs',
+    'KUB':'Kidney-ureter-bladder X-ray',
+    'CT Angiography (head/neck)':'CTA head and neck'
+  },
+  meds:{
+    'NS 500mL bolus':'Normal saline 500mL IV bolus',
+    'LR 1L bolus':'Lactated Ringer\'s 1L IV bolus',
+    'NS maintenance (125mL/hr)':'NS at maintenance rate',
+    'Heparin drip (VTE protocol)':'Heparin infusion per protocol',
+    'Enoxaparin (DVT ppx)':'Enoxaparin 40mg SQ daily',
+    'SQ heparin (DVT ppx)':'Heparin 5000u SQ q8h',
+    'Pantoprazole 40mg IV':'PPI IV',
+    'Acetaminophen 650mg PO PRN':'Tylenol for pain/fever',
+    'Ondansetron 4mg IV PRN':'Zofran for nausea',
+    'Morphine 2mg IV PRN':'Opioid for pain',
+    'Insulin sliding scale':'Regular insulin per sliding scale',
+    'Vancomycin (dose per pharmacy)':'Vancomycin IV',
+    'Piperacillin-tazobactam 4.5g IV':'Zosyn IV',
+    'Ceftriaxone 2g IV':'Ceftriaxone IV',
+    'Azithromycin 500mg IV':'Azithromycin IV',
+    'Metoprolol 5mg IV':'IV beta-blocker',
+    'Furosemide 40mg IV':'IV loop diuretic',
+    'Norepinephrine drip':'Vasopressor infusion'
+  },
+  other:{
+    'Telemetry monitoring':'Continuous cardiac monitoring',
+    'Continuous pulse oximetry':'SpO2 monitoring',
+    'Strict I&Os':'Intake and output monitoring',
+    'Foley catheter':'Urinary catheter placement',
+    'NPO':'Nothing by mouth',
+    'Cardiac diet':'Heart-healthy diet',
+    'Regular diet':'Regular diet',
+    'Diabetic diet':'Carb-controlled diet',
+    'Fall precautions':'Fall risk protocol',
+    'Bed rest':'Strict bed rest',
+    'Activity as tolerated':'Ambulate as tolerated',
+    'O2 via nasal cannula (titrate)':'Supplemental oxygen',
+    'Consult: Cardiology':'Cardiology consultation',
+    'Consult: Pulmonology':'Pulmonology consultation',
+    'Consult: GI':'Gastroenterology consultation',
+    'Consult: ID':'Infectious disease consultation',
+    'Consult: Surgery':'Surgical consultation',
+    'Consult: Nephrology':'Nephrology consultation',
+    '12-lead EKG':'Standard 12-lead electrocardiogram',
+    'Central line placement':'Central venous catheter',
+    'Arterial line placement':'Arterial catheter for monitoring'
+  }
+};
+
+let currentOrderTab='labs';
+let selectedOrders=new Set();
+let customOrders=[];
+
+function initOrdersPanel(){
+  currentOrderTab='labs';selectedOrders=new Set();customOrders=[];
+  document.querySelectorAll('.orders-tab').forEach(t=>{t.classList.toggle('active',t.textContent.toLowerCase()==='labs');});
+  renderOrderItems();
+}
+
+function switchOrderTab(btn,tab){
+  currentOrderTab=tab;
+  document.querySelectorAll('.orders-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderOrderItems();
+}
+window.switchOrderTab=switchOrderTab;
+
+function renderOrderItems(){
+  const body=document.getElementById('orders-body');
+  const items=ORDER_CATALOG[currentOrderTab]||{};
+  let html=Object.entries(items).map(([name,desc])=>{
+    const key=currentOrderTab+':'+name;
+    const sel=selectedOrders.has(key)?'selected':'';
+    return `<div class="order-item ${sel}" onclick="toggleOrder('${esc(key)}',this)"><span class="order-check">${sel?'✓':''}</span><div><div style="font-weight:600;">${esc(name)}</div><div style="font-size:.58rem;color:var(--text-dim);margin-top:.05rem;">${esc(desc)}</div></div></div>`;
+  }).join('');
+  // Show custom orders for this tab
+  customOrders.filter(o=>o.tab===currentOrderTab).forEach(o=>{
+    const key='custom:'+o.name;
+    const sel=selectedOrders.has(key)?'selected':'';
+    html+=`<div class="order-item ${sel}" onclick="toggleOrder('${esc(key)}',this)"><span class="order-check">${sel?'✓':''}</span><div><div style="font-weight:600;">${esc(o.name)}</div></div><span class="order-custom-tag">Custom</span></div>`;
+  });
+  body.innerHTML=html;
+}
+
+function toggleOrder(key,el){
+  if(window._ordersSubmitted)return;
+  if(selectedOrders.has(key)){selectedOrders.delete(key);el.classList.remove('selected');el.querySelector('.order-check').textContent='';}
+  else{selectedOrders.add(key);el.classList.add('selected');el.querySelector('.order-check').textContent='✓';}
+}
+window.toggleOrder=toggleOrder;
+
+function addCustomOrder(){
+  const inp=document.getElementById('orders-custom-input');
+  const t=inp.value.trim();if(!t)return;
+  customOrders.push({tab:currentOrderTab,name:t});
+  const key='custom:'+t;
+  selectedOrders.add(key);
+  inp.value='';
+  renderOrderItems();
+}
+window.addCustomOrder=addCustomOrder;
+
+async function submitOrders(){
+  if(selectedOrders.size===0){alert('Select at least one order before submitting.');return;}
+  if(window._ordersSubmitted&&ST.wait)return;
+  window._ordersSubmitted=true;
+  document.getElementById('orders-submit-btn').disabled=true;
+
+  const orderList=[...selectedOrders].map(k=>{
+    const [cat,...rest]=k.split(':');const name=rest.join(':');
+    return name;
+  });
+
+  addMsg('I\'m placing the following orders: '+orderList.join(', '),'user');
+  ST.incUaCount();updateProgress();
+  await callAPI([{role:'user',content:`I am placing the following orders:\n${orderList.map((o,i)=>`${i+1}. ${o}`).join('\n')}\n\nPlease acknowledge these orders and provide results for the lab and imaging orders. Then continue the simulation based on the results. After providing results, evaluate whether any ordered tests were unnecessary and if any important orders were missed — communicate this through your standard feedback mechanism (${ST.S.fb==='realtime'?'real-time feedback after this response':'end-of-sim feedback'}).`}]);
+
+  // Re-enable for next round of orders
+  setTimeout(()=>{
+    window._ordersSubmitted=false;
+    document.getElementById('orders-submit-btn').disabled=false;
+    selectedOrders.clear();
+    renderOrderItems();
+  },500);
+}
+window.submitOrders=submitOrders;
 
 window.toggleMedAction=function(medId,action){
   const med=window._homeMeds?.find(m=>m.id===medId);if(!med)return;
