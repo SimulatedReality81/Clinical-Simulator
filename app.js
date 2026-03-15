@@ -6,6 +6,7 @@ import { applyTheme, setRandomCaseLen, initSp, refreshUI } from './ui.js';
 import { initFOTD } from './fotd.js';
 import { initLibrary } from './library.js';
 import { renderRef } from './references.js';
+import './simulation.js';
 
 // Initialize category chips
 (function(){
