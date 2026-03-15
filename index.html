@@ -66,6 +66,20 @@
       <div class="meds-body" id="meds-body"></div>
       <div class="meds-footer" id="meds-footer" style="display:none;"><button class="meds-submit-btn" id="meds-submit-btn" onclick="submitHomeMeds()">✅ Submit Med Rec</button></div>
     </div>
+    <button class="meds-reopen-btn" id="meds-reopen-btn" style="display:none;" onclick="toggleMedsPanel()">💊 Meds</button>
+    <div class="orders-panel op-hide" id="orders-panel">
+      <div class="orders-hdr"><h3>📋 Orders</h3><button class="qs-min" onclick="togOrders()">✕</button></div>
+      <div class="orders-tabs" id="orders-tabs">
+        <button class="orders-tab active" onclick="switchOrderTab(this,'labs')">Labs</button>
+        <button class="orders-tab" onclick="switchOrderTab(this,'imaging')">Imaging</button>
+        <button class="orders-tab" onclick="switchOrderTab(this,'meds')">Meds</button>
+        <button class="orders-tab" onclick="switchOrderTab(this,'consults')">Consults</button>
+        <button class="orders-tab" onclick="switchOrderTab(this,'other')">Other</button>
+      </div>
+      <div class="orders-body" id="orders-body"></div>
+      <div class="orders-custom"><input class="orders-custom-input" id="orders-custom-input" placeholder="Type a custom order..." onkeydown="if(event.key==='Enter')addCustomOrder()"><button class="orders-custom-add" onclick="addCustomOrder()">+</button></div>
+      <div class="orders-footer"><button class="orders-submit-btn" id="orders-submit-btn" onclick="submitOrders()">📨 Submit Orders</button></div>
+    </div>
     <div class="chat-main">
       <div class="ma" id="ma"><div class="typing-ind" id="ti"><span></span><span></span><span></span></div></div>
       <div class="action-row" id="action-row"></div>
@@ -73,18 +87,7 @@
     </div>
     <div class="hist-panel hp-hide" id="hist-panel"><div class="hist-hdr"><h3>🕐 Historian</h3><span class="hist-time" id="hist-time">T+0:00</span></div><div class="hist-body" id="hist-body"></div></div>
     <div class="qs-panel qp-hide" id="qs-panel"><div class="qs-hdr"><h3>📝 Debrief Questions</h3><button class="qs-min" onclick="togQS()">✕</button></div><div class="qs-body" id="qs-body"><div class="qs-empty">Add questions during sim. Highlight AI text to ask about it. Submit after sim ends.</div></div><div class="hl-ref-banner" id="hl-banner" style="display:none;margin:0 .45rem;border-radius:6px;"><span>📎 </span><span class="hl-text" id="hl-banner-text"></span><button onclick="clearHLRef()">✕</button></div><div class="qs-ft"><div class="qs-ir"><input class="qs-i" id="qs-i" placeholder="Type a question..." onkeydown="if(event.key==='Enter')addQ();"><button class="qs-ab" id="qs-add-btn" onclick="addQ()">+</button></div><button class="qs-sb" id="qs-sb" onclick="submitQs()" disabled>Send to AI</button></div></div>
-    <div class="orders-panel op-hide" id="orders-panel">
-      <div class="orders-hdr"><h3>📋 Orders</h3><button class="qs-min" onclick="togOrders()">✕</button></div>
-      <div class="orders-tabs" id="orders-tabs">
-        <button class="orders-tab active" onclick="switchOrderTab(this,'labs')">Labs</button>
-        <button class="orders-tab" onclick="switchOrderTab(this,'imaging')">Imaging</button>
-        <button class="orders-tab" onclick="switchOrderTab(this,'meds')">Meds</button>
-        <button class="orders-tab" onclick="switchOrderTab(this,'other')">Other</button>
-      </div>
-      <div class="orders-body" id="orders-body"></div>
-      <div class="orders-custom"><input class="orders-custom-input" id="orders-custom-input" placeholder="Type a custom order..." onkeydown="if(event.key==='Enter')addCustomOrder()"><button class="orders-custom-add" onclick="addCustomOrder()">+</button></div>
-      <div class="orders-footer"><button class="orders-submit-btn" id="orders-submit-btn" onclick="submitOrders()">📨 Submit Orders</button></div>
-    </div>
+    <div class="orders-reopen-btn" id="orders-reopen-btn" style="display:none;" onclick="togOrders()">📋</div>
     <div class="ref-panel rp-hide" id="ref-panel"><div class="ref-hdr"><h3>📖 MGH Whitebook</h3><button class="qs-min" onclick="togRef()">✕</button></div><input class="ref-search" id="ref-search" placeholder="Search all 211 topics..." oninput="filterRef()"><div style="padding:.2rem .4rem .1rem;font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--text-dim);" id="ref-filter-info">All topics (211)</div><div class="ref-body" id="ref-body"></div></div>
   </div>
 </div>
@@ -104,6 +107,14 @@
   <div class="lib-file-list" id="lib-file-list"></div>
   <button class="lib-sim-btn" id="lib-sim-btn" onclick="startLibSim()" disabled>⚡ Generate Institution-Specific Simulation</button>
   <p style="font-size:.65rem;color:var(--text-dim);margin-top:.3rem;text-align:center;">Uploaded content is stored locally in your browser and used as context for simulations.</p>
+  </div>
+
+  <!-- Landmark Trials Section -->
+  <div class="lib-card" style="max-width:800px;">
+    <h3>🏛️ Landmark IM Clinical Trials</h3>
+    <p style="font-size:.78rem;color:var(--text-secondary);margin-bottom:.75rem;line-height:1.5;">Key practice-changing trials across Internal Medicine specialties. Source: lmtrials.com</p>
+    <div class="trials-nav" id="trials-nav"></div>
+    <div class="trials-body" id="trials-body"></div>
   </div>
 </div></div>
 

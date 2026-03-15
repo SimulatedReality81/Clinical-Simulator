@@ -9,20 +9,42 @@ export function togRef(){document.getElementById('ref-panel').classList.toggle('
 window.togRef=togRef;
 
 function cleanRefText(s){
-  return s.replace(/\u2192/g,'→').replace(/\u2190/g,'←').replace(/\u2191/g,'↑').replace(/\u2193/g,'↓')
-    .replace(/\u2022/g,'•').replace(/\u25b6/g,'►').replace(/\u25ba/g,'►').replace(/\u25cf/g,'•')
+  return s
+    // Common Unicode arrows and symbols
+    .replace(/\u2192/g,'→').replace(/\u2190/g,'←').replace(/\u2191/g,'↑').replace(/\u2193/g,'↓')
+    .replace(/\u2194/g,'↔').replace(/\u21D2/g,'⇒').replace(/\u21D0/g,'⇐')
+    // Bullets and shapes
+    .replace(/\u2022/g,'•').replace(/\u25b6/g,'►').replace(/\u25ba/g,'►').replace(/\u25cf/g,'●')
+    .replace(/\u25cb/g,'○').replace(/\u25a0/g,'■').replace(/\u25a1/g,'□').replace(/\u25aa/g,'▪')
+    // Checkmarks and crosses
     .replace(/\u2713/g,'✓').replace(/\u2714/g,'✓').replace(/\u2717/g,'✗').replace(/\u2718/g,'✗')
+    // Math symbols
     .replace(/\u2264/g,'≤').replace(/\u2265/g,'≥').replace(/\u00b1/g,'±').replace(/\u00d7/g,'×')
-    .replace(/\u00f7/g,'÷').replace(/\u03b1/g,'α').replace(/\u03b2/g,'β').replace(/\u03b3/g,'γ')
+    .replace(/\u00f7/g,'÷').replace(/\u2260/g,'≠').replace(/\u221e/g,'∞').replace(/\u2248/g,'≈')
+    .replace(/\u00b0/g,'°').replace(/\u2030/g,'‰')
+    // Greek letters
+    .replace(/\u03b1/g,'α').replace(/\u03b2/g,'β').replace(/\u03b3/g,'γ')
     .replace(/\u03b4/g,'δ').replace(/\u03bc/g,'μ').replace(/\u03c3/g,'σ')
+    .replace(/\u03b5/g,'ε').replace(/\u03bb/g,'λ').replace(/\u03c0/g,'π')
+    // Superscripts and subscripts
     .replace(/\u2070/g,'⁰').replace(/\u00b9/g,'¹').replace(/\u00b2/g,'²').replace(/\u00b3/g,'³')
-    .replace(/\u2070|\x00|\ufffd/g,'')
-    .replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'')
+    .replace(/\u2074/g,'⁴').replace(/\u2075/g,'⁵').replace(/\u2076/g,'⁶')
+    .replace(/\u2077/g,'⁷').replace(/\u2078/g,'⁸').replace(/\u2079/g,'⁹')
+    .replace(/\u207a/g,'⁺').replace(/\u207b/g,'⁻')
+    .replace(/\u2080/g,'₀').replace(/\u2081/g,'₁').replace(/\u2082/g,'₂').replace(/\u2083/g,'₃')
+    // Ligatures
     .replace(/\ufb01/g,'fi').replace(/\ufb02/g,'fl').replace(/\ufb00/g,'ff')
     .replace(/\ufb03/g,'ffi').replace(/\ufb04/g,'ffl')
+    // Dashes and quotes
+    .replace(/\u2013/g,'–').replace(/\u2014/g,'—')
+    .replace(/\u201c/g,'"').replace(/\u201d/g,'"').replace(/\u2018/g,"'").replace(/\u2019/g,"'")
+    // Remove junk characters — boxes, replacement chars, null bytes, block elements
+    .replace(/[\u2580-\u259F\uFFFD\u25A0-\u25FF]/g,'')
+    .replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'')
+    .replace(/\x00|\ufffd/g,'')
+    // Clean up spacing
     .replace(/([a-z])([A-Z]{2,})/g,'$1 $2')
     .replace(/[ \t]{3,}/g,'  ')
-    .replace(/[\u2580-\u259F\uFFFD\u25A0-\u25FF]/g,'')
     .replace(/(\w)\n(\w)/g,'$1 $2')
     .replace(/^\s+|\s+$/gm,'');
 }

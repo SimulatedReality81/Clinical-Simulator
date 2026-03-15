@@ -66,13 +66,29 @@ export function addMsg(t,type){
         if(opts&&opts.length>=2){
           d.innerHTML=fmtMd(narrative);
           const mcDiv=document.createElement('div');mcDiv.className='mc-options';
+          let selectedLetter=null,selectedText=null;
           opts.forEach(opt=>{
             const letter=opt.charAt(0);const text=opt.substring(2).trim();
             const btn=document.createElement('button');btn.className='mc-opt';
             btn.innerHTML='<span class="mc-label">'+letter+'</span><span>'+esc(text)+'</span>';
-            btn.onclick=()=>window.selectMCOption(letter,text,mcDiv);
+            btn.onclick=()=>{
+              if(mcDiv.dataset.answered)return;
+              mcDiv.querySelectorAll('.mc-opt').forEach(b=>b.classList.remove('selected'));
+              btn.classList.add('selected');
+              selectedLetter=letter;selectedText=text;
+              const sb=mcDiv.querySelector('.mc-submit-btn');
+              if(sb){sb.disabled=false;sb.classList.add('ready');}
+            };
             mcDiv.appendChild(btn);
           });
+          const submitBtn=document.createElement('button');
+          submitBtn.className='mc-submit-btn';submitBtn.disabled=true;
+          submitBtn.textContent='Submit Answer';
+          submitBtn.onclick=()=>{
+            if(!selectedLetter||mcDiv.dataset.answered)return;
+            window.selectMCOption(selectedLetter,selectedText,mcDiv);
+          };
+          mcDiv.appendChild(submitBtn);
           d.appendChild(mcDiv);
         } else {d.innerHTML=fmtMd(t);}
       } else {d.innerHTML=fmtMd(t);}
@@ -199,7 +215,14 @@ window.toggleDefaultName=toggleDefaultName;
 // ── Meds panel toggle ──
 export function toggleMedsPanel(){
   const mp=document.getElementById('meds-panel');
+  const isHidden=mp.classList.contains('mp-hide');
   mp.classList.toggle('mp-hide');
+  // Show/hide the reopen button
+  const reopenBtn=document.getElementById('meds-reopen-btn');
+  if(reopenBtn){
+    if(isHidden){reopenBtn.style.display='none';}
+    else{reopenBtn.style.display='';}
+  }
 }
 window.toggleMedsPanel=toggleMedsPanel;
 

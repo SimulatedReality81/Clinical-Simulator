@@ -459,9 +459,9 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .cc.icu-cat:hover{border-color:var(--accent-orange);color:var(--accent-orange);}
 .cc.icu-cat.active{border-color:var(--accent-orange);background:rgba(249,115,22,.12);color:var(--accent-orange);}
 
-/* ══ ORDERS PANEL ══ */
-.orders-panel{width:300px;background:var(--bg-secondary);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:width .3s;overflow:hidden;}
-.orders-panel.op-hide{width:0;border-left:none;}
+/* ══ ORDERS PANEL (LEFT SIDE) ══ */
+.orders-panel{width:300px;background:var(--bg-secondary);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:width .3s;overflow:hidden;}
+.orders-panel.op-hide{width:0;border-right:none;}
 .orders-hdr{padding:.6rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .orders-hdr h3{font-family:'JetBrains Mono',monospace;font-size:.58rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-blue);}
 .orders-tabs{display:flex;gap:.2rem;padding:.35rem .45rem;border-bottom:1px solid var(--border);}
@@ -510,4 +510,50 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   .sp{padding:1rem;}.logo-area h1{font-size:1.2rem;}.msg{max-width:95%;font-size:.8rem;}
   .hist-panel{width:140px;}
   .meds-panel{width:180px;}
+  .orders-panel{width:200px;}
 }
+
+/* ══ CONSULT REASON INPUT ══ */
+.consult-reason-wrap{padding:.25rem .45rem .35rem;margin-top:-.1rem;}
+.consult-reason-input{width:100%;padding:.3rem .45rem;border-radius:5px;border:1.5px solid var(--accent-purple);background:var(--bg-primary);color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:.62rem;outline:none;transition:border-color .15s;}
+.consult-reason-input:focus{border-color:var(--accent-cyan);}
+.consult-reason-input::placeholder{color:var(--text-dim);}
+
+/* ══ MCQ SUBMIT BUTTON ══ */
+.mc-submit-btn{margin-top:.5rem;padding:.55rem 1.5rem;border-radius:8px;border:1.5px solid var(--accent-blue);background:rgba(59,130,246,.06);color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:not-allowed;transition:all .2s;opacity:.5;}
+.mc-submit-btn.ready{cursor:pointer;opacity:1;color:var(--accent-blue);background:rgba(59,130,246,.12);}
+.mc-submit-btn.ready:hover{background:rgba(59,130,246,.22);}
+.mc-submit-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ══ MED FEEDBACK TOOLTIP ══ */
+.med-feedback{display:flex;align-items:center;justify-content:space-between;}
+.med-note-icon{cursor:help;font-size:.72rem;position:relative;flex-shrink:0;margin-left:.3rem;}
+.med-note-icon:hover::after{content:attr(data-tooltip);position:absolute;bottom:120%;right:0;width:220px;padding:.4rem .55rem;background:var(--bg-card);border:1px solid var(--border);border-radius:7px;font-size:.62rem;line-height:1.4;color:var(--text-secondary);z-index:50;box-shadow:0 4px 16px rgba(0,0,0,.4);white-space:normal;font-style:normal;pointer-events:none;}
+
+/* ══ MEDS REOPEN BUTTON ══ */
+.meds-reopen-btn{position:absolute;left:0;top:50%;transform:translateY(-50%);z-index:20;padding:.5rem .35rem;border-radius:0 8px 8px 0;border:1.5px solid var(--accent-cyan);border-left:none;background:var(--bg-card);color:var(--accent-cyan);font-size:.6rem;font-weight:600;cursor:pointer;writing-mode:vertical-rl;letter-spacing:.03em;font-family:'JetBrains Mono',monospace;transition:all .2s;}
+.meds-reopen-btn:hover{background:rgba(6,182,212,.12);}
+
+/* ══ ORDERS REOPEN BUTTON ══ */
+.orders-reopen-btn{display:none;position:absolute;left:0;top:38%;transform:translateY(-50%);z-index:19;padding:.5rem .35rem;border-radius:0 8px 8px 0;border:1.5px solid var(--accent-blue);border-left:none;background:var(--bg-card);color:var(--accent-blue);font-size:.6rem;font-weight:600;cursor:pointer;writing-mode:vertical-rl;letter-spacing:.03em;font-family:'JetBrains Mono',monospace;transition:all .2s;}
+.orders-reopen-btn:hover{background:rgba(59,130,246,.12);}
+
+/* ══ LANDMARK TRIALS ══ */
+.trials-nav{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.75rem;}
+.trials-nav-btn{padding:.3rem .65rem;border-radius:16px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-size:.68rem;font-weight:500;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.trials-nav-btn:hover{border-color:var(--accent-cyan);color:var(--accent-cyan);}
+.trials-nav-btn.active{border-color:var(--accent-cyan);background:rgba(6,182,212,.1);color:var(--accent-cyan);}
+.trials-subcat{font-family:'JetBrains Mono',monospace;font-size:.58rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-purple);margin:1rem 0 .4rem;padding-bottom:.2rem;border-bottom:1px solid var(--border);}
+.trial-card{background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;padding:.55rem .65rem;margin-bottom:.35rem;cursor:pointer;transition:all .2s;}
+.trial-card:hover{border-color:var(--accent-cyan);background:var(--bg-card-hover);}
+.trial-card-hdr{display:flex;justify-content:space-between;align-items:center;}
+.trial-name{font-size:.78rem;font-weight:700;color:var(--text-primary);}
+.trial-meta{font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--text-dim);}
+.trial-body{display:none;margin-top:.45rem;padding-top:.4rem;border-top:1px solid var(--border);}
+.trial-card.open .trial-body{display:block;}
+.trial-summary{font-size:.72rem;line-height:1.55;color:var(--text-secondary);}
+.trial-takeaway{margin-top:.35rem;padding:.3rem .5rem;border-radius:5px;background:rgba(34,197,94,.06);border-left:3px solid var(--accent-green);font-size:.65rem;line-height:1.4;}
+.trial-takeaway-label{font-family:'JetBrains Mono',monospace;font-size:.5rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-green);margin-bottom:.15rem;}
+.trial-takeaway-text{color:var(--accent-green);}
+.trial-arrow{font-size:.55rem;color:var(--text-dim);transition:transform .2s;}
+.trial-card.open .trial-arrow{transform:rotate(180deg);}

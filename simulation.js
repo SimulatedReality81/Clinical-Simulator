@@ -235,11 +235,11 @@ export async function startSim(){
   document.getElementById('meds-body').innerHTML='<div style="font-size:.7rem;color:var(--text-dim);padding:.5rem;text-align:center;">Waiting for patient data...</div>';
   document.getElementById('meds-footer').style.display='none';
 
-  // Orders panel — show for IM/ICU sims
+  // Orders panel — show for IM/ICU sims (open by default on left side)
   const op=document.getElementById('orders-panel');
   const ob=document.getElementById('orders-btn');
   if(ST.S.scType==='genim'||ST.S.scType==='genicu'){
-    op.classList.add('op-hide');ob.style.display='';
+    op.classList.remove('op-hide');ob.style.display='';
     initOrdersPanel();
   } else {op.classList.add('op-hide');ob.style.display='none';}
 
@@ -287,25 +287,34 @@ function submitHomeMeds(){
   if(!allDecided){alert('Please make a decision (continue, hold, or change) for every medication before submitting.');return;}
   window._medsSubmitted=true;
   document.getElementById('meds-submit-btn').disabled=true;
+  document.getElementById('meds-submit-btn').textContent='✅ Submitted';
 
-  // Show feedback on each med
+  // Show feedback on each med — only NOW reveal correct answers
+  let correct=0;
   meds.forEach(med=>{
     const item=document.getElementById('med-'+med.id);
     const btns=item.querySelectorAll('.med-action-btn');
     btns.forEach(b=>{b.style.pointerEvents='none';b.style.opacity='.6';});
-    const isCorrect=(med.status===med.correctAction)||(med.status==='change'&&med.correctAction==='change');
+    const isCorrect=(med.status===med.correctAction);
+    if(isCorrect)correct++;
     item.classList.remove('med-continue','med-hold','med-change');
     item.classList.add(isCorrect?'med-correct':'med-incorrect');
+
+    // Feedback row with explanation tooltip icon
     const fb=document.createElement('div');
     fb.className='med-feedback '+(isCorrect?'fb-correct':'fb-incorrect');
-    fb.textContent=isCorrect?`✅ ${med.reason||'Correct decision.'}`:`❌ Should ${med.correctAction}. ${med.reason||''}`;
+    const statusText=isCorrect?'✅ Correct':`❌ Should ${med.correctAction}`;
+    fb.innerHTML=`<span>${esc(statusText)}</span><span class="med-note-icon" title="${esc(med.reason||'No explanation available.')}" data-tooltip="${esc(med.reason||'')}">📝</span>`;
     item.appendChild(fb);
   });
 
   // Build summary for AI context
   const summary=meds.map(m=>`${m.name}: user chose ${m.status}, correct was ${m.correctAction}${m.status===m.correctAction?' ✅':' ❌'}`).join('\n');
-  const correct=meds.filter(m=>m.status===m.correctAction).length;
-  addSysMsg(`📋 Med Rec submitted: ${correct}/${meds.length} correct. You can minimize the panel to free up space.`);
+  addSysMsg(`📋 Med Rec submitted: ${correct}/${meds.length} correct. Hover the 📝 icons for explanations. You can minimize and reopen this panel anytime.`);
+
+  // Show reopen button
+  const reopenBtn=document.getElementById('meds-reopen-btn');
+  if(reopenBtn)reopenBtn.style.display='';
 
   // Inform the AI about the med rec decisions silently
   ST.pushConv({role:'user',content:`[SYSTEM: Med rec completed. Results:\n${summary}\nScore: ${correct}/${meds.length}. Continue the simulation — the patient is now on the floor/in the ICU. Do NOT re-present the medications or comment on the med rec unless asked.]`});
@@ -394,15 +403,21 @@ const ORDER_CATALOG={
     'Bed rest':'Strict bed rest',
     'Activity as tolerated':'Ambulate as tolerated',
     'O2 via nasal cannula (titrate)':'Supplemental oxygen',
+    '12-lead EKG':'Standard 12-lead electrocardiogram',
+    'Central line placement':'Central venous catheter',
+    'Arterial line placement':'Arterial catheter for monitoring'
+  },
+  consults:{
     'Consult: Cardiology':'Cardiology consultation',
     'Consult: Pulmonology':'Pulmonology consultation',
     'Consult: GI':'Gastroenterology consultation',
     'Consult: ID':'Infectious disease consultation',
     'Consult: Surgery':'Surgical consultation',
     'Consult: Nephrology':'Nephrology consultation',
-    '12-lead EKG':'Standard 12-lead electrocardiogram',
-    'Central line placement':'Central venous catheter',
-    'Arterial line placement':'Arterial catheter for monitoring'
+    'Consult: Neurology':'Neurology consultation',
+    'Consult: Hematology':'Hematology/Oncology consultation',
+    'Consult: ICU/Critical Care':'ICU transfer/co-management',
+    'Consult: Palliative Care':'Palliative care consultation'
   }
 };
 
@@ -411,7 +426,7 @@ let selectedOrders=new Set();
 let customOrders=[];
 
 function initOrdersPanel(){
-  currentOrderTab='labs';selectedOrders=new Set();customOrders=[];
+  currentOrderTab='labs';selectedOrders=new Set();customOrders=[];consultReasons={};
   document.querySelectorAll('.orders-tab').forEach(t=>{t.classList.toggle('active',t.textContent.toLowerCase()==='labs');});
   renderOrderItems();
 }
@@ -430,7 +445,13 @@ function renderOrderItems(){
   let html=Object.entries(items).map(([name,desc])=>{
     const key=currentOrderTab+':'+name;
     const sel=selectedOrders.has(key)?'selected':'';
-    return `<div class="order-item ${sel}" onclick="toggleOrder('${esc(key)}',this)"><span class="order-check">${sel?'✓':''}</span><div><div style="font-weight:600;">${esc(name)}</div><div style="font-size:.58rem;color:var(--text-dim);margin-top:.05rem;">${esc(desc)}</div></div></div>`;
+    const isConsult=currentOrderTab==='consults';
+    const reasonVal=consultReasons[key]||'';
+    let itemHtml=`<div class="order-item ${sel}" onclick="toggleOrder('${esc(key)}',this)"><span class="order-check">${sel?'✓':''}</span><div><div style="font-weight:600;">${esc(name)}</div><div style="font-size:.58rem;color:var(--text-dim);margin-top:.05rem;">${esc(desc)}</div></div></div>`;
+    if(isConsult&&sel){
+      itemHtml+=`<div class="consult-reason-wrap"><input class="consult-reason-input" placeholder="Reason for consult..." value="${esc(reasonVal)}" onclick="event.stopPropagation()" oninput="updateConsultReason('${esc(key)}',this.value)"></div>`;
+    }
+    return itemHtml;
   }).join('');
   // Show custom orders for this tab
   customOrders.filter(o=>o.tab===currentOrderTab).forEach(o=>{
@@ -441,10 +462,15 @@ function renderOrderItems(){
   body.innerHTML=html;
 }
 
+let consultReasons={};
+function updateConsultReason(key,val){consultReasons[key]=val;}
+window.updateConsultReason=updateConsultReason;
+
 function toggleOrder(key,el){
   if(window._ordersSubmitted)return;
-  if(selectedOrders.has(key)){selectedOrders.delete(key);el.classList.remove('selected');el.querySelector('.order-check').textContent='';}
-  else{selectedOrders.add(key);el.classList.add('selected');el.querySelector('.order-check').textContent='✓';}
+  if(selectedOrders.has(key)){selectedOrders.delete(key);delete consultReasons[key];}
+  else{selectedOrders.add(key);}
+  renderOrderItems();
 }
 window.toggleOrder=toggleOrder;
 
@@ -467,7 +493,8 @@ async function submitOrders(){
 
   const orderList=[...selectedOrders].map(k=>{
     const [cat,...rest]=k.split(':');const name=rest.join(':');
-    return name;
+    const reason=consultReasons[k];
+    return reason?`${name} (Reason: ${reason})`:name;
   });
 
   addMsg('I\'m placing the following orders: '+orderList.join(', '),'user');
@@ -479,6 +506,7 @@ async function submitOrders(){
     window._ordersSubmitted=false;
     document.getElementById('orders-submit-btn').disabled=false;
     selectedOrders.clear();
+    consultReasons={};
     renderOrderItems();
   },500);
 }
