@@ -160,14 +160,16 @@ export function resolveMinR(){
 
 export function onSliderInput(el){
   ST.S.minR=parseInt(el.value);
-  document.getElementById('mr-v').textContent=ST.S.minR>15?'15+':ST.S.minR;
+  const vEl=document.getElementById('mr-v');
+  vEl.textContent=ST.S.minR>15?'15+':ST.S.minR;
+  vEl.style.display='';
   document.getElementById('mr-rand-btn').classList.remove('active');
 }
 window.onSliderInput=onSliderInput;
 
 export function setRandomCaseLen(){
   ST.S.minR=-1;
-  document.getElementById('mr-v').textContent='—';
+  document.getElementById('mr-v').style.display='none';
   document.getElementById('mr-slider').value=8;
   const btn=document.getElementById('mr-rand-btn');
   btn.classList.add('active');
