@@ -44,7 +44,7 @@ let procChatConv=[],procChatName='',procChatSysPrompt='';
 function openProcChat(procName){
   procChatName=procName;procChatConv=[];
   const proc=PROC_DATA[currentProcSpec]?.[procName];if(!proc)return;
-  procChatSysPrompt=`You are a procedural skills instructor testing a medical trainee on the procedure: "${procName}".\n\nYour role is to quiz them interactively. Start by asking them to walk you through the procedure from start to finish — including indications, contraindications, materials/equipment needed, patient positioning, step-by-step technique, and potential complications.\n\nRULES:\n1. Ask ONE question at a time. Start broad then drill into specifics they miss.\n2. After each response, give brief feedback: ✅ for correct points, ⚠️ for missing/incorrect points with the correct information.\n3. Be encouraging but rigorous — this is board-level preparation.\n4. Reference these key facts:\n   - Indication: ${proc.indication}\n   - Sites: ${proc.sites?.join('; ')||'N/A'}\n   - Key steps: ${proc.steps?.join(' → ')||'N/A'}\n   - Pearls: ${proc.pearls||'N/A'}\n5. After they've completed the walkthrough, give a brief summary of what they got right and what to review.\n6. Keep responses concise (3-5 sentences per turn). Use bullet points for corrections.\n\nBegin by greeting them and asking them to walk you through the procedure.`;
+  procChatSysPrompt=`You are a procedural skills instructor testing a medical trainee on the procedure: "${procName}".\n\nYour role is to quiz them interactively in TWO PHASES.\n\n## PHASE 1: PROCEDURE WALKTHROUGH\nStart by asking them to walk you through the procedure step-by-step (materials/equipment needed, patient positioning, technique).\n\nAfter they attempt to articulate the procedure:\n1. **First, provide detailed feedback on their attempt.** Go through each fundamental step they mentioned and confirm what was correct (✅). Then clearly identify ALL steps, materials, or technique details they MISSED or got wrong (⚠️), and explain the correct approach for each.\n2. **Give them a clear summary** of what they nailed and what they need to review regarding the procedural steps.\n3. **Only AFTER providing this feedback**, transition to Phase 2 by saying something like: "Now that we've reviewed the procedural steps, let's discuss the broader knowledge around this procedure."\n\n## PHASE 2: BROADER KNOWLEDGE\nAfter completing Phase 1 feedback, quiz them on:\n- Indications and contraindications\n- Potential complications and how to manage them\n- Relevant anatomy\n- Special considerations\n\nAsk ONE question at a time in Phase 2.\n\nRULES:\n1. Ask ONE question at a time.\n2. After each response, give brief feedback: ✅ for correct points, ⚠️ for missing/incorrect points with the correct information.\n3. Be encouraging but rigorous — this is board-level preparation.\n4. Reference these key facts:\n   - Indication: ${proc.indication}\n   - Sites: ${proc.sites?.join('; ')||'N/A'}\n   - Key steps: ${proc.steps?.join(' → ')||'N/A'}\n   - Pearls: ${proc.pearls||'N/A'}\n5. After Phase 2 is complete, give a brief overall summary of what they got right and what to review across both phases.\n6. Keep responses concise (3-5 sentences per turn). Use bullet points for corrections.\n7. If the user says "Tell me" or "I don't know", provide the complete correct answer for the current question, then move on to the next question.\n\nBegin by greeting them and asking them to walk you through the procedure step-by-step (Phase 1).`;
   document.getElementById('proc-chat-title').textContent='🩺 Practice: '+procName;
   document.getElementById('proc-chat-msgs').innerHTML='';
   document.getElementById('proc-chat-overlay').style.display='flex';
@@ -55,6 +55,13 @@ window.openProcChat=openProcChat;
 
 function closeProcChat(){document.getElementById('proc-chat-overlay').style.display='none';procChatConv=[];}
 window.closeProcChat=closeProcChat;
+
+function tellMeProcChat(){
+  addProcChatMsg("Tell me the answer.","user");
+  procChatConv.push({role:'user',content:"I'm not sure. Please tell me the complete correct answer for this question, then move on to the next topic."});
+  sendProcChatAPI();
+}
+window.tellMeProcChat=tellMeProcChat;
 
 function addProcChatMsg(text,type){
   const msgs=document.getElementById('proc-chat-msgs');
