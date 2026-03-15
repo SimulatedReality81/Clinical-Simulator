@@ -57,7 +57,14 @@ ${ez?`Straightforward. ${isA?'Standard rhythms: VFib, pVTach, PEA, Asystole.':'C
 
 ## SIMULATION FLOW
 1. **Opening:** Vivid scenario. Setting, patient, how response was called, initial picture.
-2. **Decision Points:** After each segment, STOP and ask ONLY neutral prompts:
+2. **HOME MEDICATIONS LIST:** In your VERY FIRST response, you MUST include a structured list of the patient's home medications. This list should be realistic and relevant to the patient's medical history. Format it as a special block:
+   HOME_MEDS_START
+   MED: [Drug Name] | [Dose & Frequency] | [Indication]
+   MED: [Drug Name] | [Dose & Frequency] | [Indication]
+   ...
+   HOME_MEDS_END
+   Include 6-12 medications that are realistic for the patient's age and comorbidities. Some should clearly need to be continued, some held, and some changed given the acute presentation. This block will be parsed and displayed in a side panel for the user to make decisions on.
+3. **Decision Points:** After each segment, STOP and ask ONLY neutral prompts:
    - "What would you like to do next, ${nm}?"
    - "What are your orders?"
    - "How do you want to proceed?"
@@ -210,6 +217,11 @@ export async function startSim(){
   if(useTP()){hp.classList.remove('hp-hide');document.getElementById('hist-body').innerHTML='';document.getElementById('hist-time').textContent='T+0:00';}
   else hp.classList.add('hp-hide');
 
+  // Show home meds panel (populated after first API response)
+  const mp=document.getElementById('meds-panel');
+  mp.classList.remove('mp-hide');
+  document.getElementById('meds-body').innerHTML='<div style="font-size:.7rem;color:var(--text-dim);padding:.5rem;text-align:center;">Waiting for patient data...</div>';
+
   // Set MGH reference topics
   let caseKeywords=[];
   if(ST.S.scType==='acls'){caseKeywords=['Cardiology','ACLS','EKG','Atrial','QTc','Tachycardia','Bradycardia','Wide Complex','Heart Failure','Cardiac','Coronary','Pericardial','Aortic','Syncope','Mechanical Circulatory'];if(ST.S.selCatsACLS.length>0)caseKeywords=[...caseKeywords,...ST.S.selCatsACLS];}
@@ -224,6 +236,50 @@ export async function startSim(){
 }
 window.startSim=startSim;
 
+// ── Home Medications Panel ──
+function parseAndRenderHomeMeds(block){
+  const lines=block.trim().split('\n').filter(l=>l.startsWith('MED:'));
+  const meds=lines.map((l,i)=>{
+    const parts=l.replace('MED:','').split('|').map(s=>s.trim());
+    return {id:i,name:parts[0]||'Unknown',details:parts[1]||'',indication:parts[2]||'',status:null,changeText:''};
+  });
+  const body=document.getElementById('meds-body');
+  body.innerHTML='';
+  meds.forEach(med=>{
+    const div=document.createElement('div');div.className='med-item';div.id='med-'+med.id;
+    div.innerHTML=`<div class="med-name">${esc(med.name)}</div><div class="med-details">${esc(med.details)}${med.indication?' — '+esc(med.indication):''}</div><div class="med-actions"><button class="med-action-btn btn-continue" data-med="${med.id}" data-action="continue" onclick="toggleMedAction(${med.id},'continue')" title="Continue">+</button><button class="med-action-btn btn-hold" data-med="${med.id}" data-action="hold" onclick="toggleMedAction(${med.id},'hold')" title="Hold">−</button><button class="med-action-btn btn-change" data-med="${med.id}" data-action="change" onclick="toggleMedAction(${med.id},'change')" title="Change">Δ</button></div><div class="med-change-input" id="med-change-${med.id}"><input type="text" placeholder="e.g. change to sliding scale insulin, change route to IV..." oninput="updateMedChangeText(${med.id},this.value)"></div>`;
+    body.appendChild(div);
+  });
+  window._homeMeds=meds;
+}
+
+window.toggleMedAction=function(medId,action){
+  const med=window._homeMeds?.find(m=>m.id===medId);if(!med)return;
+  const item=document.getElementById('med-'+medId);
+  const btns=item.querySelectorAll('.med-action-btn');
+  const changeInput=document.getElementById('med-change-'+medId);
+  // Toggle off if same action clicked again
+  if(med.status===action){
+    med.status=null;
+    btns.forEach(b=>b.classList.remove('active-continue','active-hold','active-change'));
+    item.classList.remove('med-continue','med-hold','med-change');
+    changeInput.classList.remove('open');
+    return;
+  }
+  // Set new action
+  med.status=action;
+  btns.forEach(b=>b.classList.remove('active-continue','active-hold','active-change'));
+  item.classList.remove('med-continue','med-hold','med-change');
+  const btn=item.querySelector(`[data-action="${action}"]`);
+  if(action==='continue'){btn.classList.add('active-continue');item.classList.add('med-continue');changeInput.classList.remove('open');}
+  else if(action==='hold'){btn.classList.add('active-hold');item.classList.add('med-hold');changeInput.classList.remove('open');}
+  else if(action==='change'){btn.classList.add('active-change');item.classList.add('med-change');changeInput.classList.add('open');changeInput.querySelector('input').focus();}
+};
+
+window.updateMedChangeText=function(medId,val){
+  const med=window._homeMeds?.find(m=>m.id===medId);if(med)med.changeText=val;
+};
+
 // ── API Call (through backend proxy) ──
 async function callAPI(msgs,init=false){
   ST.setWait(true);updIS();showT(true);
@@ -233,9 +289,12 @@ async function callAPI(msgs,init=false){
     if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||`Error ${r.status}`);}
     const d=await r.json();let txt=d.content.map(b=>b.text||'').join('\n');
     ST.pushConv({role:'assistant',content:txt});
+    // Parse home medications (from first response)
+    const medsMatch=txt.match(/HOME_MEDS_START\n([\s\S]*?)HOME_MEDS_END/);
+    if(medsMatch){parseAndRenderHomeMeds(medsMatch[1]);}
     // Parse historian
     for(const m of[...txt.matchAll(/HISTORIAN_LOG:(\{[^\n]+\})/g)])try{addHE(JSON.parse(m[1]));}catch(e){}
-    const clean=txt.replace(/HISTORIAN_LOG:\{[^\n]+\}/g,'').replace(/FINAL_SCORE:\d+/g,'').trim();
+    const clean=txt.replace(/HOME_MEDS_START[\s\S]*?HOME_MEDS_END\n?/g,'').replace(/HISTORIAN_LOG:\{[^\n]+\}/g,'').replace(/FINAL_SCORE:\d+/g,'').trim();
     showT(false);addMsg(clean,'ai');
     // Score
     const sm=txt.match(/FINAL_SCORE:(\d+)/);
