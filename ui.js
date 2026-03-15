@@ -57,7 +57,8 @@ export function addMsg(t,type){
   const a=document.getElementById('ma');const d=document.createElement('div');
   if(type==='ai'){
     d.className='msg msg-ai';
-    if(ST.S.inputMode==='mc'&&ST.simPhase==='active'){
+    // Always render MC options as clickable bubbles if present (regardless of input mode)
+    if(ST.simPhase==='active'){
       const mcMatch=t.match(/([\s\S]*?)(?:^|\n)(A\)[\s\S]*?)$/m);
       if(mcMatch){
         const narrative=mcMatch[1].trim();

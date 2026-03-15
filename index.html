@@ -100,7 +100,15 @@
 
 
 <!-- LIBRARY -->
-<div class="page" id="library"><div class="page-header"><button class="hdr-btn back-btn" onclick="goHome()">←</button><h2>📚 Library</h2></div><div class="page-content" id="library-c">
+<div class="page" id="library"><div class="page-header"><button class="hdr-btn back-btn" onclick="goHome()">←</button><h2>📚 Library</h2></div>
+  <div class="lib-tabs" id="lib-tabs">
+    <button class="lib-tab active" onclick="switchLibTab(this,'docs')">📄 Institution Docs</button>
+    <button class="lib-tab" onclick="switchLibTab(this,'trials')">🏛️ Landmark Trials</button>
+    <button class="lib-tab" onclick="switchLibTab(this,'mgh')">📖 MGH Reference</button>
+  </div>
+  <div class="page-content" id="library-c">
+  <!-- Tab 1: Institution Docs -->
+  <div class="lib-section" id="lib-sec-docs">
   <div class="lib-card"><h3>Institution-Specific Documents</h3><p style="font-size:.78rem;color:var(--text-secondary);margin-bottom:.75rem;line-height:1.5;">Upload your institution's protocols, antibiograms, clinical pathways, and other documents. These will be used to generate institution-specific simulations tailored to your practice environment.</p>
   <div class="lib-upload-area" id="lib-upload-area" onclick="document.getElementById('lib-file-input').click()"><div class="upload-icon">📄</div><div class="upload-text">Click to upload files</div><div class="upload-hint">PDF, TXT, DOCX — max 5 files, 10MB each</div></div>
   <input type="file" id="lib-file-input" accept=".pdf,.txt,.doc,.docx,.csv,.json" multiple style="display:none;" onchange="handleLibUpload(event)">
@@ -108,13 +116,27 @@
   <button class="lib-sim-btn" id="lib-sim-btn" onclick="startLibSim()" disabled>⚡ Generate Institution-Specific Simulation</button>
   <p style="font-size:.65rem;color:var(--text-dim);margin-top:.3rem;text-align:center;">Uploaded content is stored locally in your browser and used as context for simulations.</p>
   </div>
+  </div>
 
-  <!-- Landmark Trials Section -->
+  <!-- Tab 2: Landmark Trials -->
+  <div class="lib-section" id="lib-sec-trials" style="display:none;">
   <div class="lib-card" style="max-width:800px;">
     <h3>🏛️ Landmark IM Clinical Trials</h3>
     <p style="font-size:.78rem;color:var(--text-secondary);margin-bottom:.75rem;line-height:1.5;">Key practice-changing trials across Internal Medicine specialties. Source: lmtrials.com</p>
     <div class="trials-nav" id="trials-nav"></div>
     <div class="trials-body" id="trials-body"></div>
+  </div>
+  </div>
+
+  <!-- Tab 3: MGH Reference -->
+  <div class="lib-section" id="lib-sec-mgh" style="display:none;">
+  <div class="lib-card" style="max-width:860px;">
+    <h3>📖 MGH Whitebook Reference</h3>
+    <p style="font-size:.78rem;color:var(--text-secondary);margin-bottom:.75rem;line-height:1.5;">Quick-reference summaries from MGH Housestaff Manual 2023-2024. AI-formatted for clarity.</p>
+    <input class="lib-mgh-search" id="lib-mgh-search" placeholder="Search all topics..." oninput="filterLibMGH()">
+    <div class="lib-mgh-nav" id="lib-mgh-nav"></div>
+    <div class="lib-mgh-body" id="lib-mgh-body"></div>
+  </div>
   </div>
 </div></div>
 

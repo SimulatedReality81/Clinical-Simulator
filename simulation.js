@@ -235,13 +235,11 @@ export async function startSim(){
   document.getElementById('meds-body').innerHTML='<div style="font-size:.7rem;color:var(--text-dim);padding:.5rem;text-align:center;">Waiting for patient data...</div>';
   document.getElementById('meds-footer').style.display='none';
 
-  // Orders panel — show for IM/ICU sims (open by default on left side)
+  // Orders panel — show for ALL simulation types (open by default on left side)
   const op=document.getElementById('orders-panel');
   const ob=document.getElementById('orders-btn');
-  if(ST.S.scType==='genim'||ST.S.scType==='genicu'){
-    op.classList.remove('op-hide');ob.style.display='';
-    initOrdersPanel();
-  } else {op.classList.add('op-hide');ob.style.display='none';}
+  op.classList.remove('op-hide');ob.style.display='';
+  initOrdersPanel();
 
   // Set MGH reference topics
   let caseKeywords=[];

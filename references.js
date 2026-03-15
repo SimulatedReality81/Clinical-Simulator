@@ -63,16 +63,26 @@ export function renderRef(){
   if(inCase&&toShow.length>5)toShow=toShow.slice(0,5);
   const headerEl=document.getElementById('ref-filter-info');
   if(headerEl){headerEl.textContent=searchVal.length>0?`Search: ${toShow.length} results`:inCase?`Top 5 case-relevant sections · Search for any topic`:`All topics (${toShow.length})`;}
+
+  const chapterColors={
+    'Cardiology':'#ef4444','Pulmonary':'#06b6d4','Nephrology':'#3b82f6',
+    'Gastroenterology':'#f59e0b','Endocrinology':'#a855f7','Hematology':'#f97316',
+    'Infectious':'#22c55e','Neurology':'#ec4899','Rheumatology':'#8b5cf6'
+  };
+  function getColor(ch){for(const[k,v] of Object.entries(chapterColors)){if(ch.toLowerCase().includes(k.toLowerCase()))return v;}return '#06b6d4';}
+
   body.innerHTML=toShow.map((r)=>{
     const cleanContent=cleanRefText(r.content);
-    const truncated=cleanContent.length>1500?cleanContent.substring(0,1500)+'...':cleanContent;
+    const truncated=cleanContent.length>1500?cleanContent.substring(0,1500)+'…':cleanContent;
+    const color=getColor(r.chapter);
     const formattedContent=truncated
       .replace(/\\n/g,'\n').replace(/\n{3,}/g,'\n\n')
-      .replace(/^([A-Z][A-Z\s&:\/\-]{4,})$/gm,'<strong style="color:var(--accent-cyan);font-size:.72rem;">$1</strong>')
-      .replace(/^[•\-]\s*(.+)$/gm,'<span style="display:block;padding-left:.6rem;border-left:2px solid var(--accent-blue);margin:.15rem 0;">$1</span>')
-      .replace(/^(\d+)[.)]\s*(.+)$/gm,'<span style="display:block;padding-left:.6rem;border-left:2px solid var(--accent-purple);margin:.15rem 0;"><strong>$1.</strong> $2</span>')
+      .replace(/^([A-Z][A-Z\s&:\/\-,()]{4,})$/gm,`<div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:700;color:${color};margin:.5rem 0 .2rem;padding:.15rem .3rem;border-left:3px solid ${color};background:${color}08;">$1</div>`)
+      .replace(/^([A-Z][A-Za-z\s]{2,}:)/gm,`<span style="font-weight:700;color:${color};">$1</span>`)
+      .replace(/^[•\-]\s*(.+)$/gm,'<span style="display:block;padding-left:.5rem;border-left:2px solid var(--accent-blue);margin:.1rem 0;font-size:.66rem;">$1</span>')
+      .replace(/^(\d+)[.)]\s*(.+)$/gm,'<span style="display:block;padding-left:.5rem;border-left:2px solid var(--accent-purple);margin:.1rem 0;font-size:.66rem;"><strong>$1.</strong> $2</span>')
       .replace(/\n/g,'<br>');
-    return `<div class="ref-item" data-topic="${esc(r.topic).toLowerCase()}"><div class="ref-item-hdr" onclick="togRefItem(this)"><span style="font-size:.58rem;color:var(--text-dim);margin-right:.25rem;">[${esc(r.chapter)}]</span>${esc(r.topic)} <span style="font-size:.6rem;color:var(--text-dim)">▶</span></div><div class="ref-item-body"><div style="line-height:1.55;font-size:.69rem;">${formattedContent}</div><div class="ref-item-src">Source: MGH Housestaff Manual 2023-2024, ${r.page}</div></div></div>`;
+    return `<div class="ref-item" data-topic="${esc(r.topic).toLowerCase()}"><div class="ref-item-hdr" onclick="togRefItem(this)"><span style="font-size:.5rem;color:${color};font-weight:600;margin-right:.25rem;font-family:'JetBrains Mono',monospace;">[${esc(r.chapter)}]</span>${esc(r.topic)} <span style="font-size:.6rem;color:var(--text-dim)">▶</span></div><div class="ref-item-body"><div style="line-height:1.55;font-size:.67rem;">${formattedContent}</div><div class="ref-item-src">Source: MGH Housestaff Manual 2023-2024, ${r.page}</div></div></div>`;
   }).join('');
 }
 
