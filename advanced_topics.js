@@ -110,45 +110,65 @@ const TOPICS = {
     title: 'Transplant Medicine',
     icon: '🧬',
     blurb: 'Organ-specific consult survival guide for immunosuppression, rejection clues, infection risk, and dangerous interactions.',
-    subtitle: 'Designed for the common inpatient reality: you are not the transplant service, but you need to recognize what is dangerous, what not to stop casually, and when to call urgently.',
+    subtitle: 'Built for the inpatient resident: identify the organ, the timeline, the baseline graft function, and the medication changes before you anchor on infection, rejection, or routine medicine pathology.',
     tags: ['Immunosuppression', 'Rejection', 'Opportunistic infection'],
-    simPrompt: 'Create a complex inpatient simulation involving a transplant recipient with concern for infection versus rejection.',
+    simPrompt: 'Create a complex inpatient simulation involving a transplant recipient with concern for infection versus rejection, including medication interaction risk and organ-specific graft dysfunction.',
     overviewCards: [
-      { title: 'General rule', body: 'Any transplant patient can decompensate from infection, rejection, medication toxicity, or a non-transplant problem. Do not anchor too early.' },
-      { title: 'Medication respect', body: 'Calcineurin inhibitors, antiproliferatives, steroids, and prophylactic regimens all matter. Seemingly small med changes can destabilize the graft or trigger toxicity.' },
-      { title: 'Timeline matters', body: 'Immediate post-transplant complications are different from problems months or years later. Ask when the transplant happened before anything else.' },
-      { title: 'Call early', body: 'If you suspect rejection, dangerous infection, graft dysfunction, or a drug-level issue, the transplant team should hear about it sooner rather than later.' }
+      { title: 'NHSBT transplant landscape', body: 'NHS Blood and Transplant organizes its patient education around six main solid-organ groups: kidney, lung, heart, liver, pancreas, and small bowel. Kidney is the most commonly transplanted organ.' },
+      { title: 'Medication backbone', body: 'Most recipients live on a combination of calcineurin inhibition, steroids, and an antiproliferative agent, with frequent blood monitoring early after transplant. The exact regimen varies by organ and center.' },
+      { title: 'Infection prevention', body: 'NHSBT emphasizes that antibiotic and antiviral prophylaxis commonly continues for roughly 3–12 months after kidney or liver transplant, while infectious risk stays especially high in the early months after any transplant.' },
+      { title: 'Rejection is time-sensitive', body: 'Rejection can still happen even when the patient says they are taking every dose. Early recognition, routine clinic follow-up, and transplant-directed biopsy or surveillance testing are recurring themes across organ types.' }
     ],
     workflows: [
-      { title: 'First pass inpatient workflow', body: 'What organ was transplanted, when, what baseline function is expected, what immunosuppressants and prophylaxis are active, and what changed from the patient’s baseline?' },
-      { title: 'Infection vs rejection', body: 'Both can look inflammatory and both can injure the graft. Pair symptom pattern with labs, levels, imaging, recent medication adherence, exposure history, and transplant-specific guidance.' },
-      { title: 'Medication safety workflow', body: 'Check tacrolimus or cyclosporine interactions, nephrotoxins, recent antibiotics/azoles/macrolides, and whether anyone held a home immunosuppressant without a clear plan.' }
+      { title: 'First 60-second transplant history', body: 'Get the organ, transplant date, transplant center, baseline graft function, current immunosuppressants, prophylaxis, recent drug-level checks, prior rejection history, and what changed this admission. This should happen before you debate the differential.' },
+      { title: 'Infection vs rejection workflow', body: 'Use the timeline to frame the risk. Early post-transplant patients have heavy immunosuppression and procedure-related complications. The 1–6 month window is classic for opportunistic infection if prophylaxis is incomplete or immunosuppression is intense. Later presentations more often mix chronic graft issues, malignancy risk, medication toxicity, and routine community infections.' },
+      { title: 'Medication safety workflow', body: 'Confirm tacrolimus or cyclosporine timing, recent troughs, adherence, vomiting or diarrhea, and any new interacting drug. Azoles, macrolides, rifamycins, diltiazem/verapamil, anticonvulsants, and nephrotoxins can rapidly change graft safety.' },
+      { title: 'Organ-specific graft dysfunction workflow', body: 'Kidney: trend creatinine, urine output, ultrasound context, and obstruction. Liver: follow bilirubin, INR, AST/ALT pattern, alk phos, and biliary or vascular complications. Heart: think hemodynamics, arrhythmia, echo change, and rejection surveillance. Lung: treat new dyspnea, oxygen need, or spirometric decline as potentially graft-threatening until proven otherwise.' }
     ],
     emergencies: [
-      { title: 'Acute graft dysfunction', body: 'Treat abrupt rise in creatinine, bilirubin, transaminases, BNP, oxygen need, or spirometric decline as potentially time-sensitive. Infection, rejection, obstruction, thrombosis, and toxicity can all present abruptly.', note: 'Do not reflexively stop immunosuppression without a transplant discussion.' },
-      { title: 'Fever in an immunosuppressed recipient', body: 'The organism list broadens and the inflammatory response may be muted. Get cultures, source evaluation, exposure history, prophylaxis history, and transplant input early.', note: 'Normal-looking vitals do not reassure as much as they do in other patients.' },
-      { title: 'Dangerous drug interaction', body: 'Azoles, macrolides, calcium channel blockers, rifamycins, and many other agents can sharply alter calcineurin inhibitor levels. Toxicity and under-immunosuppression are both real.', note: 'Always ask what changed this week.' }
+      { title: 'Acute graft dysfunction', body: 'A sudden creatinine rise, worsening bilirubin/INR, new heart failure physiology, or new hypoxemia in a lung recipient is not a routine lab abnormality. Consider rejection, infection, obstruction, thrombosis, ischemia, medication toxicity, and volume issues simultaneously.', note: 'Call the transplant team early and avoid casual immunosuppression changes.' },
+      { title: 'Fever in an immunosuppressed recipient', body: 'The source may be bacterial, viral, fungal, or donor-related, and the usual inflammatory response may be muted. Pair early cultures and imaging with medication review, prophylaxis history, CMV/BK context when relevant, and transplant-specific exposure history.', note: 'Normal-looking vitals do not lower the stakes as much as they do in other patients.' },
+      { title: 'Tacrolimus / cyclosporine interaction or toxicity', body: 'Think this whenever AKI, tremor, neurotoxicity, refractory hypertension, hyperkalemia, or unexplained graft dysfunction appears after a medication change. Drug–drug interaction and dehydration are common real-world triggers.', note: 'Always ask what new antibiotic, antifungal, antiarrhythmic, calcium-channel blocker, or seizure drug was started.' },
+      { title: 'Do-not-miss lung or heart transplant decompensation', body: 'New breathlessness in a lung recipient or new low-output / arrhythmic physiology in a heart recipient should trigger rapid escalation. NHSBT notes lung rejection often presents with breathlessness and tiredness, while heart recipients undergo frequent surveillance with blood tests, echo, and often biopsy in the early months.', note: 'These patients can look only slightly worse before they become very unstable.' }
     ],
     pearls: [
-      'Every transplant patient needs a timeline, a graft baseline, and a current immunosuppression list in the first minute of discussion.',
-      '“Infection versus rejection” is a framing tool, not the whole differential.',
-      'Never be casual about holding or restarting home transplant meds; clarify with the transplant team whenever possible.',
-      'Organ-specific warning signs are worth memorizing because they make you faster and safer overnight.'
+      'Ask four things first: what organ, when transplanted, what baseline graft function, and what immunosuppressants/prophylaxis are active right now.',
+      'Rejection can still occur despite adherence; transplant teams care deeply about timing, trend, and surveillance data, not just a single abnormal lab.',
+      'Kidney and lung rejection risk is highest in the first 3–6 months; liver rejection risk is highest in the first 6 months; heart recipients also face especially intense surveillance and infection risk in the early months.',
+      'For kidney and liver recipients, NHSBT specifically highlights antibiotic and antiviral prophylaxis during roughly the first 3–12 months after transplant.',
+      'Do not reflexively stop tacrolimus, cyclosporine, mycophenolate, or prednisone overnight without a deliberate plan unless there is a true toxicity or a transplant-directed recommendation.',
+      'Transplant patients still get ordinary inpatient problems; do not let the graft history blind you to sepsis, volume depletion, obstruction, PE, ACS, GI bleed, or routine ICU physiology.'
     ],
     organCards: [
-      { title: 'Kidney', body: 'Watch creatinine trend, urine output, tacrolimus level context, obstruction, BK/CMV history, and whether volume depletion or nephrotoxins are the real culprit.' },
-      { title: 'Liver', body: 'Track bilirubin, AST/ALT, alk phos pattern, INR, biliary complications, vascular issues, infection, and tacrolimus interactions.' },
-      { title: 'Heart', body: 'Think graft dysfunction, arrhythmia, hemodynamics, rejection surveillance history, opportunistic infection, and medication adherence.' },
-      { title: 'Lung', body: 'Any new dyspnea is high stakes: infection, acute rejection, airway issues, edema, bronchiolitis obliterans trajectory, or non-transplant pulmonary disease.' }
+      { title: 'Kidney', body: 'NHSBT notes kidney is the most commonly transplanted organ. Early inpatient anchors: creatinine trend, urine output, tacrolimus timing/level, obstruction or vascular issue, BK/CMV context, diarrhea causing tacrolimus swings, and whether nephrotoxins or hypovolemia explain the change better than rejection.' },
+      { title: 'Liver', body: 'Rejection is most common in the first 6 months. Worsening graft function often appears first on blood tests. Track bilirubin, INR, AST/ALT pattern, alk phos, biliary obstruction/leak, vascular compromise, infection, and medication adherence or interaction.' },
+      { title: 'Heart', body: 'NHSBT highlights frequent early clinic follow-up with blood work, echocardiography, and often biopsy. Infections are very common in the first 12–18 months, and longer-term complications include hypertension, CMV, and cardiac allograft vasculopathy.' },
+      { title: 'Lung', body: 'Any new dyspnea is high stakes. NHSBT reports rejection in roughly 20–30% of recipients in the first year, with highest risk in the first 3–6 months. Breathlessness, tiredness, worsening spirometry, or new fluid should raise concern for rejection, infection, edema, airway complication, or CLAD trajectory.' }
+    ],
+    drugCards: [
+      { title: 'Calcineurin inhibitors', body: 'Tacrolimus and cyclosporine are common backbone drugs. Watch trough timing, AKI, tremor, hyperkalemia, hypertension, neurotoxicity, and interacting antibiotics or azoles.' },
+      { title: 'Antiproliferatives', body: 'Mycophenolate and azathioprine often add rejection protection but can bring leukopenia, GI upset, and infection risk. Mycophenolate is a common culprit when a patient has major diarrhea.' },
+      { title: 'Steroids', body: 'Prednisone is still common, especially early after transplant or during treatment of rejection. Think hyperglycemia, mood change, infection risk, hypertension, and bone loss.' },
+      { title: 'Prophylaxis', body: 'Expect organ- and center-specific antibacterial, antiviral, and often antifungal or Pneumocystis prophylaxis. If it was recently stopped or doses were missed, ask why.' }
     ],
     timelineCards: [
-      { title: 'Immediate / early', body: 'Surgical complications, vascular problems, intense immunosuppression, nosocomial infection, medication titration issues.' },
-      { title: '1–6 months', body: 'Peak opportunistic infection window if prophylaxis is incomplete or immunosuppression is high; rejection and drug toxicity remain very active concerns.' },
-      { title: 'Late post-transplant', body: 'Chronic rejection, chronic allograft dysfunction, malignancy risk, routine community infections, cardiovascular and renal medication toxicities.' }
+      { title: '0–1 month', body: 'Heavy immunosuppression, line/device exposure, delayed graft function, vascular or anastomotic complications, biliary/airway issues, donor-derived infection, and medication titration errors dominate the differential.' },
+      { title: '1–6 months', body: 'This is the classic window where rejection remains active and opportunistic infection matters most if prophylaxis is incomplete or immunosuppression is intense. Kidney and lung rejection risk is especially high across the first 3–6 months; liver rejection risk peaks across the first 6 months.' },
+      { title: '6–12 months', body: 'The regimen may be tapering, but CMV, medication toxicity, evolving chronic dysfunction, recurrent primary disease, and late rejection still matter. Problems often look less dramatic than they actually are.' },
+      { title: 'Late post-transplant', body: 'Think chronic allograft dysfunction, malignancy, skin cancer, hypertension, diabetes, chronic kidney injury from calcineurin exposure, routine community infections, and organ-specific long-term complications such as cardiac allograft vasculopathy or chronic lung allograft dysfunction.' }
+    ],
+    redFlags: [
+      'A home immunosuppressant was held in the ED and nobody has a restart plan.',
+      'There is a new interacting medication but no one checked trough timing or levels.',
+      'The patient cannot name their prophylaxis or says they recently ran out of it.',
+      'The graft labs are worsening but everyone is calling it dehydration without imaging, cultures, or transplant input.',
+      'A lung recipient has new dyspnea or a heart recipient has new arrhythmia / low-output symptoms and the transplant center has not been called.'
     ],
     cases: [
-      { title: 'Kidney transplant recipient with rising creatinine and fever', level: 'Night float', focus: 'Infection vs rejection', prompt: 'How do you frame the first workup and which medication / transplant-history details are non-negotiable to gather?' },
-      { title: 'Lung transplant recipient with new hypoxemia', level: 'ICU consult', focus: 'Escalation', prompt: 'What makes this an urgent call to transplant and how do you avoid missing a graft-threatening process while still treating routine critical illness?' }
+      { title: 'Kidney transplant recipient with AKI after antibiotics', level: 'Night float', focus: 'Tacrolimus toxicity vs rejection', prompt: 'A kidney recipient develops rising creatinine, hyperkalemia, tremor, and diarrhea after a new antimicrobial was started. How do you separate volume loss, tacrolimus toxicity, obstruction, and rejection in the first pass?' },
+      { title: 'Liver transplant recipient with rising bilirubin and fever', level: 'Cross-cover → admit', focus: 'Biliary complication vs cholangitis vs rejection', prompt: 'Which labs, cultures, imaging, medication questions, and transplant-history details are non-negotiable before you label this simply sepsis?' },
+      { title: 'Heart transplant patient with dyspnea and low-output physiology', level: 'ICU consult', focus: 'Infection, rejection, or CAV', prompt: 'How do you frame the workup when the patient has tachycardia, rising creatinine, elevated filling pressures, and a medication list full of interaction risk?' },
+      { title: 'Lung transplant recipient with new hypoxemia', level: 'Rapid deterioration', focus: 'Urgent escalation', prompt: 'What makes this an immediate transplant call, and how do you stabilize the patient while considering rejection, infection, edema, airway issue, or chronic allograft dysfunction?' }
     ]
   }
 };
@@ -254,6 +274,13 @@ function renderOverview(topicKey, topic) {
       </div>
     `,
     transplant: `
+      <div class="advanced-grid-4">
+        ${topic.overviewCards.map(card => `
+          <div class="advanced-panel">
+            <h4>${esc(card.title)}</h4>
+            <p>${esc(card.body)}</p>
+          </div>`).join('')}
+      </div>
       <div class="advanced-organ-grid">
         ${topic.organCards.map(card => `
           <div class="advanced-organ-card">
@@ -261,12 +288,23 @@ function renderOverview(topicKey, topic) {
             <p>${esc(card.body)}</p>
           </div>`).join('')}
       </div>
-      <div class="advanced-grid-3">
+      <div class="advanced-grid-4">
+        ${topic.drugCards.map(card => `
+          <div class="advanced-panel">
+            <h4>${esc(card.title)}</h4>
+            <p>${esc(card.body)}</p>
+          </div>`).join('')}
+      </div>
+      <div class="advanced-grid-4">
         ${topic.timelineCards.map(card => `
           <div class="advanced-panel">
             <h4>${esc(card.title)}</h4>
             <p>${esc(card.body)}</p>
           </div>`).join('')}
+      </div>
+      <div class="advanced-pearl-box">
+        <h4>Red flags that should speed up your call to transplant</h4>
+        ${renderList(topic.redFlags)}
       </div>
       <p class="advanced-section-note">Fastest habit to build: whenever a transplant patient is discussed, ask what organ, when, what baseline function, and which immunosuppressants or prophylaxis are active right now.</p>
     `
