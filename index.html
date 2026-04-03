@@ -17,6 +17,7 @@
     <button class="sidebar-btn purple" onclick="showPage('stats')"><span class="sidebar-icon">📊</span><span class="sidebar-label">Scores</span></button>
     <button class="sidebar-btn blue" onclick="showPage('sims')"><span class="sidebar-icon">📋</span><span class="sidebar-label">Sims</span></button>
     <button class="sidebar-btn green" onclick="showPage('library')"><span class="sidebar-icon">📚</span><span class="sidebar-label">Library</span></button>
+    <button class="sidebar-btn red" onclick="showPage('advanced-topics')"><span class="sidebar-icon">🧠</span><span class="sidebar-label">Advanced Topics</span></button>
     <button class="sidebar-btn cyan" onclick="showPage('drugs')"><span class="sidebar-icon">💊</span><span class="sidebar-label">Drugs</span></button>
     <button class="sidebar-btn orange" onclick="showPage('procedures')"><span class="sidebar-icon">🔧</span><span class="sidebar-label">Procedures</span></button>
   </div>
@@ -55,6 +56,7 @@
     <button class="utility-pill purple" onclick="showPage('stats')">📊 Scores</button>
     <button class="utility-pill blue" onclick="showPage('sims')">📋 Recent Sims</button>
     <button class="utility-pill green" onclick="showPage('library')">📚 Library</button>
+    <button class="utility-pill red" onclick="showPage('advanced-topics')">🧠 Advanced Topics</button>
     <button class="utility-pill cyan" onclick="showPage('drugs')">💊 Drugs</button>
     <button class="utility-pill orange" onclick="showPage('procedures')">🔧 Procedures</button>
   </div>
@@ -142,6 +144,28 @@
   </div>
   </div>
 </div></div>
+
+
+<!-- ADVANCED TOPICS -->
+<div class="page" id="advanced-topics"><div class="page-header"><button class="hdr-btn back-btn" onclick="goHome()">←</button><h2>🧠 Advanced Topics</h2></div>
+  <div class="page-content advanced-topics-page" id="advanced-topics-page">
+    <section class="advanced-hero">
+      <div>
+        <p class="advanced-eyebrow">HIGH-YIELD GROWTH AREAS</p>
+        <h3>Deliberate practice for the parts of training you want to strengthen most.</h3>
+        <p class="advanced-hero-copy">This hub gives Mechanical Circulatory Support, Ventilator Management, Dialysis Management, and Transplant Medicine their own structured space with workflows, emergencies, pearls, and practice cases.</p>
+      </div>
+      <div class="advanced-hero-badges">
+        <span class="advanced-badge">Device logic</span>
+        <span class="advanced-badge">Troubleshooting</span>
+        <span class="advanced-badge">Consult survival</span>
+        <span class="advanced-badge">Launch related ICU sims</span>
+      </div>
+    </section>
+    <section class="advanced-topic-grid" id="advanced-topic-grid"></section>
+    <section class="advanced-detail" id="advanced-topic-detail"></section>
+  </div>
+</div>
 
 <!-- DRUGS -->
 <div class="page" id="drugs"><div class="page-header"><button class="hdr-btn back-btn" onclick="goHome()">←</button><h2>💊 Drug Reference</h2></div><div class="ref-page-content" id="drugs-c">

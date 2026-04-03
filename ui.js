@@ -5,6 +5,7 @@ import * as ST from './state.js';
 import { renderStats, renderSims } from './scores.js';
 import { initDrugsPage } from './drugs.js';
 import { initProcPage } from './procedures.js';
+import { initAdvancedTopicsPage } from './advanced_topics.js';
 import { renderRef } from './references.js';
 
 // ── Escape HTML ──
@@ -21,10 +22,11 @@ export function updIS(){document.getElementById('send-btn').disabled=ST.wait;doc
 
 // ── Page navigation ──
 export function showPage(id){
-  ['home','chat','stats','sims','library','drugs','procedures'].forEach(p=>{document.getElementById(p).classList.remove('active');document.getElementById(p).style.display='none';});
+  ['home','chat','stats','sims','library','advanced-topics','drugs','procedures'].forEach(p=>{document.getElementById(p).classList.remove('active');document.getElementById(p).style.display='none';});
   const el=document.getElementById(id);el.classList.add('active');el.style.display='flex';
   if(id==='stats')renderStats();
   if(id==='sims')renderSims();
+  if(id==='advanced-topics')initAdvancedTopicsPage();
   if(id==='drugs')initDrugsPage();
   if(id==='procedures')initProcPage();
 }
@@ -171,6 +173,7 @@ export function refreshUI(){
   document.getElementById('home-title').textContent=titles[ST.S.scType]||'ACLS Code Blue Simulator';
   document.getElementById('case-len-g').classList.toggle('hidden',ST.S.diff==='easy');
 }
+window.refreshUI=refreshUI;
 
 // ── Case length (sim length toggle) ──
 export function resolveMinR(){
