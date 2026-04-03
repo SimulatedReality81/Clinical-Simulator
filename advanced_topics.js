@@ -2,13 +2,14 @@
 // ADVANCED TOPICS — Dedicated learning hub for weaker training areas
 // ══════════════════════════════════════════════════════════════
 import * as ST from './state.js';
+import { esc } from './ui.js';
 
 const TOPICS = {
   mcs: {
     title: 'Mechanical Circulatory Support',
     icon: '🫀',
     blurb: 'Device-first review of shock support, hemodynamics, complications, and escalation logic.',
-    subtitle: 'Think like a CICU control room: match the shock phenotype to the right support strategy, know what the device changes, and troubleshoot what can kill the patient fastest.',
+    subtitle: 'Match the shock phenotype to the right support strategy, know what the device changes, and troubleshoot what can kill the patient fastest.',
     tags: ['Devices', 'Hemodynamics', 'Escalation'],
     simPrompt: 'Create a high-acuity ICU simulation focused on cardiogenic shock requiring mechanical circulatory support selection and troubleshooting.',
     overviewCards: [
@@ -24,7 +25,7 @@ const TOPICS = {
     ],
     emergencies: [
       { title: 'Impella suction alarm', body: 'Think underfilling, RV failure, tamponade, severe hypovolemia, or device migration. Reduce support temporarily, re-image, and fix preload or RV physiology.', note: 'Do not just keep turning the P-level back up.' },
-      { title: 'VA-ECMO with pulmonary edema / no aortic valve opening', body: 'Worry about LV distention and rising LVEDP. Consider unloading with Impella, IABP, venting strategy, or afterload reduction depending on the situation.', note: 'Rising wedge plus absent pulsatility is dangerous.' },
+      { title: 'VA-ECMO with pulmonary edema / no AV opening', body: 'Worry about LV distention and rising LVEDP. Consider unloading with Impella, IABP, venting strategy, or afterload reduction depending on the situation.', note: 'Rising wedge plus absent pulsatility is dangerous.' },
       { title: 'North–South syndrome', body: 'If native cardiac output recovers while lungs remain terrible, upper body may receive poorly oxygenated blood. Compare right arm saturation/ABG to lower body and adjust the circuit or oxygenation strategy.', note: 'Always sample the right arm on peripheral VA-ECMO.' }
     ],
     pearls: [
@@ -42,7 +43,7 @@ const TOPICS = {
     title: 'Ventilator Management',
     icon: '🫁',
     blurb: 'Problem-oriented ventilation: initial settings, alarms, ARDS, obstructive disease, asynchrony, and liberation.',
-    subtitle: 'This section is built like a bedside checklist: identify whether the issue is oxygenation, ventilation, mechanics, or synchrony, then adjust intentionally.',
+    subtitle: 'Identify whether the issue is oxygenation, ventilation, mechanics, or synchrony, then adjust intentionally.',
     tags: ['ARDS', 'Asynchrony', 'Liberation'],
     simPrompt: 'Create an ICU ventilator management simulation involving worsening hypoxemia and ventilator troubleshooting.',
     overviewCards: [
@@ -52,9 +53,9 @@ const TOPICS = {
       { title: 'Waveforms matter', body: 'A vent alarm is not just a machine complaint — it is often your first clue to secretions, bronchospasm, dyssynchrony, kinking, or worsening compliance.' }
     ],
     workflows: [
-      { title: 'Initial settings workflow', body: 'Start with predicted body weight, low tidal volume strategy when appropriate, adequate PEEP, and a realistic rate. Then watch plateau pressure, driving pressure, and gas exchange rather than chasing a perfect first blood gas.' },
-      { title: 'Hypoxemia workflow', body: 'Check the patient first, then tube position, secretions, circuit, CXR or ultrasound context, PEEP response, recruitability, proning candidacy, and whether the lungs are flooded, collapsed, or obstructed.' },
-      { title: 'Hypercapnia workflow', body: 'Separate permissive hypercapnia from dangerous dynamic hyperinflation. In obstructive physiology, longer expiratory time may matter more than pushing the rate higher.' }
+      { title: 'Initial settings', body: 'Start with predicted body weight, low tidal volume strategy when appropriate, adequate PEEP, and a realistic rate. Then watch plateau pressure, driving pressure, and gas exchange rather than chasing a perfect first blood gas.' },
+      { title: 'Hypoxemia', body: 'Check the patient first, then tube position, secretions, circuit, CXR or ultrasound context, PEEP response, recruitability, proning candidacy, and whether the lungs are flooded, collapsed, or obstructed.' },
+      { title: 'Hypercapnia', body: 'Separate permissive hypercapnia from dangerous dynamic hyperinflation. In obstructive physiology, longer expiratory time may matter more than pushing the rate higher.' }
     ],
     emergencies: [
       { title: 'High peak pressure', body: 'Differentiate airway resistance from poor compliance. If plateau is normal, think bronchospasm, mucus, tube kinking. If plateau is also high, think edema, ARDS, effusion, pneumothorax, abdominal pressure.', note: 'Peak and plateau are answering different questions.' },
@@ -76,7 +77,7 @@ const TOPICS = {
     title: 'Dialysis Management',
     icon: '🩺',
     blurb: 'Modality selection, prescriptions, ultrafiltration strategy, electrolyte crises, and access troubleshooting.',
-    subtitle: 'This section is organized around the questions residents struggle with most: when to start RRT, which modality fits the patient, and how to talk to nephrology with the right vocabulary.',
+    subtitle: 'When to start RRT, which modality fits the patient, and how to talk to nephrology with the right vocabulary.',
     tags: ['CRRT', 'Hyperkalemia', 'UF strategy'],
     simPrompt: 'Create an ICU renal replacement therapy simulation involving modality choice, severe metabolic derangement, and fluid management.',
     overviewCards: [
@@ -93,7 +94,7 @@ const TOPICS = {
     emergencies: [
       { title: 'Hyperkalemia despite temporizing measures', body: 'Dialysis is definitive potassium removal when the membrane-stabilizing and shift therapies are not enough or the rebound risk is high.', note: 'Say what has already been given and whether ECG changes are present.' },
       { title: 'CRRT circuit keeps clotting', body: 'Check filtration fraction, access pressures, catheter position, blood flow rate, anticoagulation plan, and whether hemoconcentration is too aggressive.', note: 'A technical issue can masquerade as a physiologic one.' },
-      { title: 'UF intolerance', body: 'If blood pressure collapses every time fluid comes off, reassess rate, vasoplegia, RV failure, sepsis, albumin status, and whether you are trying to remove fluid faster than the refill rate permits.', note: 'The answer is not always “more pressor and keep pulling.”' }
+      { title: 'UF intolerance', body: 'If blood pressure collapses every time fluid comes off, reassess rate, vasoplegia, RV failure, sepsis, albumin status, and whether you are trying to remove fluid faster than the refill rate permits.', note: 'The answer is not always "more pressor and keep pulling."' }
     ],
     pearls: [
       'Residents sound stronger on nephrology consults when they clearly state modality goal, fluid goal, and urgency.',
@@ -110,341 +111,240 @@ const TOPICS = {
     title: 'Transplant Medicine',
     icon: '🧬',
     blurb: 'Organ-specific consult survival guide for immunosuppression, rejection clues, infection risk, and dangerous interactions.',
-    subtitle: 'Built for the inpatient resident: identify the organ, the timeline, the baseline graft function, and the medication changes before you anchor on infection, rejection, or routine medicine pathology.',
+    subtitle: 'Identify the organ, the timeline, the baseline graft function, and the medication changes before you anchor on infection, rejection, or routine medicine pathology.',
     tags: ['Immunosuppression', 'Rejection', 'Opportunistic infection'],
     simPrompt: 'Create a complex inpatient simulation involving a transplant recipient with concern for infection versus rejection, including medication interaction risk and organ-specific graft dysfunction.',
     overviewCards: [
-      { title: 'NHSBT transplant landscape', body: 'NHS Blood and Transplant organizes its patient education around six main solid-organ groups: kidney, lung, heart, liver, pancreas, and small bowel. Kidney is the most commonly transplanted organ.' },
-      { title: 'Medication backbone', body: 'Most recipients live on a combination of calcineurin inhibition, steroids, and an antiproliferative agent, with frequent blood monitoring early after transplant. The exact regimen varies by organ and center.' },
-      { title: 'Infection prevention', body: 'NHSBT emphasizes that antibiotic and antiviral prophylaxis commonly continues for roughly 3–12 months after kidney or liver transplant, while infectious risk stays especially high in the early months after any transplant.' },
-      { title: 'Rejection is time-sensitive', body: 'Rejection can still happen even when the patient says they are taking every dose. Early recognition, routine clinic follow-up, and transplant-directed biopsy or surveillance testing are recurring themes across organ types.' }
+      { title: 'Transplant landscape', body: 'Six main solid-organ groups: kidney, lung, heart, liver, pancreas, and small bowel. Kidney is the most commonly transplanted organ.' },
+      { title: 'Medication backbone', body: 'Most recipients live on a combination of calcineurin inhibition, steroids, and an antiproliferative agent, with frequent blood monitoring early after transplant.' },
+      { title: 'Infection prevention', body: 'Antibiotic and antiviral prophylaxis commonly continues for roughly 3–12 months after kidney or liver transplant, while infectious risk stays especially high in the early months after any transplant.' },
+      { title: 'Rejection is time-sensitive', body: 'Rejection can still happen even when the patient says they are taking every dose. Early recognition, routine clinic follow-up, and transplant-directed biopsy or surveillance testing are recurring themes.' }
     ],
     workflows: [
-      { title: 'First 60-second transplant history', body: 'Get the organ, transplant date, transplant center, baseline graft function, current immunosuppressants, prophylaxis, recent drug-level checks, prior rejection history, and what changed this admission. This should happen before you debate the differential.' },
-      { title: 'Infection vs rejection workflow', body: 'Use the timeline to frame the risk. Early post-transplant patients have heavy immunosuppression and procedure-related complications. The 1–6 month window is classic for opportunistic infection if prophylaxis is incomplete or immunosuppression is intense. Later presentations more often mix chronic graft issues, malignancy risk, medication toxicity, and routine community infections.' },
-      { title: 'Medication safety workflow', body: 'Confirm tacrolimus or cyclosporine timing, recent troughs, adherence, vomiting or diarrhea, and any new interacting drug. Azoles, macrolides, rifamycins, diltiazem/verapamil, anticonvulsants, and nephrotoxins can rapidly change graft safety.' },
-      { title: 'Organ-specific graft dysfunction workflow', body: 'Kidney: trend creatinine, urine output, ultrasound context, and obstruction. Liver: follow bilirubin, INR, AST/ALT pattern, alk phos, and biliary or vascular complications. Heart: think hemodynamics, arrhythmia, echo change, and rejection surveillance. Lung: treat new dyspnea, oxygen need, or spirometric decline as potentially graft-threatening until proven otherwise.' }
+      { title: 'First 60-second transplant history', body: 'Get the organ, transplant date, transplant center, baseline graft function, current immunosuppressants, prophylaxis, recent drug-level checks, prior rejection history, and what changed this admission.' },
+      { title: 'Infection vs rejection', body: 'Use the timeline to frame the risk. Early post-transplant patients have heavy immunosuppression and procedure-related complications. The 1–6 month window is classic for opportunistic infection if prophylaxis is incomplete or immunosuppression is intense.' },
+      { title: 'Medication safety', body: 'Confirm tacrolimus or cyclosporine timing, recent troughs, adherence, vomiting or diarrhea, and any new interacting drug. Azoles, macrolides, rifamycins, diltiazem/verapamil, anticonvulsants, and nephrotoxins can rapidly change graft safety.' },
+      { title: 'Organ-specific graft dysfunction', body: 'Kidney: trend creatinine, urine output, ultrasound, obstruction. Liver: bilirubin, INR, AST/ALT pattern, biliary or vascular complications. Heart: hemodynamics, arrhythmia, echo change. Lung: new dyspnea, oxygen need, or spirometric decline is potentially graft-threatening.' }
     ],
     emergencies: [
-      { title: 'Acute graft dysfunction', body: 'A sudden creatinine rise, worsening bilirubin/INR, new heart failure physiology, or new hypoxemia in a lung recipient is not a routine lab abnormality. Consider rejection, infection, obstruction, thrombosis, ischemia, medication toxicity, and volume issues simultaneously.', note: 'Call the transplant team early and avoid casual immunosuppression changes.' },
-      { title: 'Fever in an immunosuppressed recipient', body: 'The source may be bacterial, viral, fungal, or donor-related, and the usual inflammatory response may be muted. Pair early cultures and imaging with medication review, prophylaxis history, CMV/BK context when relevant, and transplant-specific exposure history.', note: 'Normal-looking vitals do not lower the stakes as much as they do in other patients.' },
-      { title: 'Tacrolimus / cyclosporine interaction or toxicity', body: 'Think this whenever AKI, tremor, neurotoxicity, refractory hypertension, hyperkalemia, or unexplained graft dysfunction appears after a medication change. Drug–drug interaction and dehydration are common real-world triggers.', note: 'Always ask what new antibiotic, antifungal, antiarrhythmic, calcium-channel blocker, or seizure drug was started.' },
-      { title: 'Do-not-miss lung or heart transplant decompensation', body: 'New breathlessness in a lung recipient or new low-output / arrhythmic physiology in a heart recipient should trigger rapid escalation. NHSBT notes lung rejection often presents with breathlessness and tiredness, while heart recipients undergo frequent surveillance with blood tests, echo, and often biopsy in the early months.', note: 'These patients can look only slightly worse before they become very unstable.' }
+      { title: 'Acute graft dysfunction', body: 'A sudden creatinine rise, worsening bilirubin/INR, new heart failure physiology, or new hypoxemia in a lung recipient is not routine. Consider rejection, infection, obstruction, thrombosis, ischemia, medication toxicity, and volume issues simultaneously.', note: 'Call the transplant team early and avoid casual immunosuppression changes.' },
+      { title: 'Fever in an immunosuppressed recipient', body: 'The source may be bacterial, viral, fungal, or donor-related, and the usual inflammatory response may be muted. Pair early cultures and imaging with medication review, prophylaxis history, and CMV/BK context.', note: 'Normal-looking vitals do not lower the stakes as much as they do in other patients.' },
+      { title: 'Tacrolimus / cyclosporine toxicity', body: 'Think this whenever AKI, tremor, neurotoxicity, refractory hypertension, hyperkalemia, or unexplained graft dysfunction appears after a medication change.', note: 'Always ask what new antibiotic, antifungal, antiarrhythmic, CCB, or seizure drug was started.' },
+      { title: 'Lung or heart transplant decompensation', body: 'New breathlessness in a lung recipient or new low-output / arrhythmic physiology in a heart recipient should trigger rapid escalation.', note: 'These patients can look only slightly worse before they become very unstable.' }
     ],
     pearls: [
       'Ask four things first: what organ, when transplanted, what baseline graft function, and what immunosuppressants/prophylaxis are active right now.',
-      'Rejection can still occur despite adherence; transplant teams care deeply about timing, trend, and surveillance data, not just a single abnormal lab.',
-      'Kidney and lung rejection risk is highest in the first 3–6 months; liver rejection risk is highest in the first 6 months; heart recipients also face especially intense surveillance and infection risk in the early months.',
-      'For kidney and liver recipients, NHSBT specifically highlights antibiotic and antiviral prophylaxis during roughly the first 3–12 months after transplant.',
-      'Do not reflexively stop tacrolimus, cyclosporine, mycophenolate, or prednisone overnight without a deliberate plan unless there is a true toxicity or a transplant-directed recommendation.',
-      'Transplant patients still get ordinary inpatient problems; do not let the graft history blind you to sepsis, volume depletion, obstruction, PE, ACS, GI bleed, or routine ICU physiology.'
+      'Rejection can still occur despite adherence; transplant teams care about timing, trend, and surveillance data, not just a single abnormal lab.',
+      'Do not reflexively stop tacrolimus, cyclosporine, mycophenolate, or prednisone overnight without a deliberate plan.',
+      'Transplant patients still get ordinary inpatient problems — sepsis, volume depletion, obstruction, PE, ACS, GI bleed.'
     ],
     organCards: [
-      { title: 'Kidney', body: 'NHSBT notes kidney is the most commonly transplanted organ. Early inpatient anchors: creatinine trend, urine output, tacrolimus timing/level, obstruction or vascular issue, BK/CMV context, diarrhea causing tacrolimus swings, and whether nephrotoxins or hypovolemia explain the change better than rejection.' },
-      { title: 'Liver', body: 'Rejection is most common in the first 6 months. Worsening graft function often appears first on blood tests. Track bilirubin, INR, AST/ALT pattern, alk phos, biliary obstruction/leak, vascular compromise, infection, and medication adherence or interaction.' },
-      { title: 'Heart', body: 'NHSBT highlights frequent early clinic follow-up with blood work, echocardiography, and often biopsy. Infections are very common in the first 12–18 months, and longer-term complications include hypertension, CMV, and cardiac allograft vasculopathy.' },
-      { title: 'Lung', body: 'Any new dyspnea is high stakes. NHSBT reports rejection in roughly 20–30% of recipients in the first year, with highest risk in the first 3–6 months. Breathlessness, tiredness, worsening spirometry, or new fluid should raise concern for rejection, infection, edema, airway complication, or CLAD trajectory.' }
-    ],
-    drugCards: [
-      { title: 'Calcineurin inhibitors', body: 'Tacrolimus and cyclosporine are common backbone drugs. Watch trough timing, AKI, tremor, hyperkalemia, hypertension, neurotoxicity, and interacting antibiotics or azoles.' },
-      { title: 'Antiproliferatives', body: 'Mycophenolate and azathioprine often add rejection protection but can bring leukopenia, GI upset, and infection risk. Mycophenolate is a common culprit when a patient has major diarrhea.' },
-      { title: 'Steroids', body: 'Prednisone is still common, especially early after transplant or during treatment of rejection. Think hyperglycemia, mood change, infection risk, hypertension, and bone loss.' },
-      { title: 'Prophylaxis', body: 'Expect organ- and center-specific antibacterial, antiviral, and often antifungal or Pneumocystis prophylaxis. If it was recently stopped or doses were missed, ask why.' }
+      { title: 'Kidney', body: 'Most commonly transplanted. Anchors: creatinine trend, urine output, tacrolimus timing/level, obstruction or vascular issue, BK/CMV context, diarrhea causing tacrolimus swings.' },
+      { title: 'Liver', body: 'Rejection most common in first 6 months. Track bilirubin, INR, AST/ALT pattern, alk phos, biliary obstruction/leak, vascular compromise, infection, medication adherence.' },
+      { title: 'Heart', body: 'Frequent early follow-up with blood work, echo, and often biopsy. Infections very common in first 12–18 months. Longer-term: hypertension, CMV, cardiac allograft vasculopathy.' },
+      { title: 'Lung', body: 'Any new dyspnea is high stakes. Rejection in roughly 20–30% of recipients in first year. Breathlessness, worsening spirometry, or new fluid should raise concern for rejection, infection, edema, or CLAD.' }
     ],
     timelineCards: [
-      { title: '0–1 month', body: 'Heavy immunosuppression, line/device exposure, delayed graft function, vascular or anastomotic complications, biliary/airway issues, donor-derived infection, and medication titration errors dominate the differential.' },
-      { title: '1–6 months', body: 'This is the classic window where rejection remains active and opportunistic infection matters most if prophylaxis is incomplete or immunosuppression is intense. Kidney and lung rejection risk is especially high across the first 3–6 months; liver rejection risk peaks across the first 6 months.' },
-      { title: '6–12 months', body: 'The regimen may be tapering, but CMV, medication toxicity, evolving chronic dysfunction, recurrent primary disease, and late rejection still matter. Problems often look less dramatic than they actually are.' },
-      { title: 'Late post-transplant', body: 'Think chronic allograft dysfunction, malignancy, skin cancer, hypertension, diabetes, chronic kidney injury from calcineurin exposure, routine community infections, and organ-specific long-term complications such as cardiac allograft vasculopathy or chronic lung allograft dysfunction.' }
+      { title: '0–1 mo', body: 'Heavy immunosuppression, line/device exposure, delayed graft function, vascular or anastomotic complications, donor-derived infection, medication titration errors.' },
+      { title: '1–6 mo', body: 'Classic window for rejection and opportunistic infection if prophylaxis is incomplete. Kidney and lung rejection risk especially high.' },
+      { title: '6–12 mo', body: 'Regimen may be tapering, but CMV, medication toxicity, evolving chronic dysfunction, recurrent primary disease, and late rejection still matter.' },
+      { title: 'Late', body: 'Chronic allograft dysfunction, malignancy, skin cancer, diabetes, chronic kidney injury from calcineurin exposure, organ-specific long-term complications.' }
     ],
     redFlags: [
       'A home immunosuppressant was held in the ED and nobody has a restart plan.',
       'There is a new interacting medication but no one checked trough timing or levels.',
       'The patient cannot name their prophylaxis or says they recently ran out of it.',
-      'The graft labs are worsening but everyone is calling it dehydration without imaging, cultures, or transplant input.',
-      'A lung recipient has new dyspnea or a heart recipient has new arrhythmia / low-output symptoms and the transplant center has not been called.'
+      'Graft labs are worsening but everyone is calling it dehydration without imaging, cultures, or transplant input.',
+      'A lung recipient has new dyspnea or a heart recipient has new arrhythmia and the transplant center has not been called.'
     ],
     cases: [
-      { title: 'Kidney transplant recipient with AKI after antibiotics', level: 'Night float', focus: 'Tacrolimus toxicity vs rejection', prompt: 'A kidney recipient develops rising creatinine, hyperkalemia, tremor, and diarrhea after a new antimicrobial was started. How do you separate volume loss, tacrolimus toxicity, obstruction, and rejection in the first pass?' },
-      { title: 'Liver transplant recipient with rising bilirubin and fever', level: 'Cross-cover → admit', focus: 'Biliary complication vs cholangitis vs rejection', prompt: 'Which labs, cultures, imaging, medication questions, and transplant-history details are non-negotiable before you label this simply sepsis?' },
-      { title: 'Heart transplant patient with dyspnea and low-output physiology', level: 'ICU consult', focus: 'Infection, rejection, or CAV', prompt: 'How do you frame the workup when the patient has tachycardia, rising creatinine, elevated filling pressures, and a medication list full of interaction risk?' },
-      { title: 'Lung transplant recipient with new hypoxemia', level: 'Rapid deterioration', focus: 'Urgent escalation', prompt: 'What makes this an immediate transplant call, and how do you stabilize the patient while considering rejection, infection, edema, airway issue, or chronic allograft dysfunction?' }
+      { title: 'Kidney transplant with AKI after antibiotics', level: 'Night float', focus: 'Tacrolimus toxicity vs rejection', prompt: 'A kidney recipient develops rising creatinine, hyperkalemia, tremor, and diarrhea after a new antimicrobial was started. How do you separate volume loss, tacrolimus toxicity, obstruction, and rejection in the first pass?' },
+      { title: 'Liver transplant with rising bilirubin and fever', level: 'Cross-cover', focus: 'Biliary complication vs cholangitis vs rejection', prompt: 'Which labs, cultures, imaging, medication questions, and transplant-history details are non-negotiable before you label this simply sepsis?' },
+      { title: 'Heart transplant with dyspnea and low-output physiology', level: 'ICU consult', focus: 'Infection, rejection, or CAV', prompt: 'How do you frame the workup when the patient has tachycardia, rising creatinine, elevated filling pressures, and a medication list full of interaction risk?' },
+      { title: 'Lung transplant with new hypoxemia', level: 'Rapid deterioration', focus: 'Urgent escalation', prompt: 'What makes this an immediate transplant call, and how do you stabilize the patient while considering rejection, infection, edema, airway issue, or chronic allograft dysfunction?' }
     ]
   }
 };
 
-const TABS = [
-  ['overview', 'Overview'],
-  ['workflows', 'Core Workflows'],
+const SECTIONS = [
+  ['overview',    'Overview'],
+  ['workflows',   'Core Workflows'],
   ['emergencies', 'Emergencies'],
-  ['pearls', 'Pearls / Pitfalls'],
-  ['cases', 'Practice Cases']
+  ['pearls',      'Pearls & Pitfalls'],
+  ['cases',       'Practice Cases']
 ];
 
-let currentTopic = 'mcs';
-let currentTab = 'overview';
+let currentTopic   = 'mcs';
+let currentSection = 'overview';
 
-function esc(value = '') {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+/* ── Topic nav (ref-nav-btn pattern, like drugs specialties) ── */
+function renderTopicNav() {
+  const nav = document.getElementById('at-nav');
+  if (!nav) return;
+  nav.innerHTML = Object.entries(TOPICS).map(([key, t]) =>
+    `<button class="ref-nav-btn${key === currentTopic ? ' active' : ''}" onclick="selectAdvancedTopic('${key}')">${t.icon} ${esc(t.title)}</button>`
+  ).join('');
 }
 
-function renderList(items = []) {
-  return `<div class="advanced-list">${items.map(item => `<div class="advanced-list-item"><span class="advanced-list-bullet">•</span><span>${esc(item)}</span></div>`).join('')}</div>`;
+/* ── Section chips (ref-subcat-btn pattern, like drug categories) ── */
+function renderSectionChips() {
+  const el = document.getElementById('at-sections');
+  if (!el) return;
+  el.innerHTML =
+    '<div class="ref-subcat-header">Sections</div>' +
+    '<div class="ref-subcat-chips">' +
+    SECTIONS.map(([key, label]) =>
+      `<button class="ref-subcat-btn${key === currentSection ? ' active' : ''}" onclick="setAdvancedTopicTab('${key}')">${label}</button>`
+    ).join('') +
+    '</div>';
 }
 
-function renderTopicGrid() {
-  const grid = document.getElementById('advanced-topic-grid');
-  if (!grid) return;
-  grid.innerHTML = Object.entries(TOPICS).map(([key, topic]) => `
-    <article class="advanced-topic-card${key === currentTopic ? ' active' : ''}" onclick="selectAdvancedTopic('${key}')">
-      <div class="advanced-topic-card-top">
-        <div class="advanced-topic-icon">${topic.icon}</div>
-        <div class="advanced-topic-meta">${topic.tags.map(tag => `<span class="advanced-chip">${esc(tag)}</span>`).join('')}</div>
-      </div>
-      <div>
-        <h4>${esc(topic.title)}</h4>
-        <p>${esc(topic.blurb)}</p>
-      </div>
-    </article>
-  `).join('');
+/* ── Main content renderer ── */
+function renderContent() {
+  const el = document.getElementById('at-detail');
+  if (!el) return;
+  const topic = TOPICS[currentTopic];
+
+  let html = `<div class="at-hdr">
+    <h4>${topic.icon} ${esc(topic.title)}</h4>
+    <p>${esc(topic.subtitle)}</p>
+    <div class="at-tags">${topic.tags.map(t => `<span class="at-tag">${esc(t)}</span>`).join('')}</div>
+  </div>`;
+
+  switch (currentSection) {
+    case 'overview':    html += renderOverview(topic); break;
+    case 'workflows':   html += renderWorkflows(topic); break;
+    case 'emergencies': html += renderEmergencies(topic); break;
+    case 'pearls':      html += renderPearls(topic); break;
+    case 'cases':       html += renderCases(topic); break;
+  }
+
+  el.innerHTML = html;
 }
 
-function renderOverview(topicKey, topic) {
-  const special = {
-    mcs: `
-      <div class="advanced-grid-4">
-        ${topic.overviewCards.map(card => `
-          <div class="advanced-panel">
-            <h4>${esc(card.title)}</h4>
-            <p>${esc(card.body)}</p>
-          </div>`).join('')}
-      </div>
-      <div class="advanced-pearl-box">
-        <h4>How to think about this section</h4>
-        <p>Mechanical support is easiest to learn when you anchor to chamber failure, perfusion goals, and the complication each device is most likely to create.</p>
-      </div>
-    `,
-    vent: `
-      <div class="advanced-grid-2">
-        <div class="advanced-panel">
-          <h4>Four bedside buckets</h4>
-          ${renderList(['Initial setup', 'Oxygenation failure', 'CO2 / ventilation failure', 'Liberation and readiness'])}
-        </div>
-        <div class="advanced-panel">
-          <h4>Interpret the vent like a monitor</h4>
-          ${renderList(['Peak vs plateau pressure', 'Waveforms and trigger mismatch', 'Expiratory flow not reaching baseline', 'P/F ratio + mechanics + patient effort'])}
-        </div>
-      </div>
-      <div class="advanced-grid-4">
-        ${topic.overviewCards.map(card => `
-          <div class="advanced-panel">
-            <h4>${esc(card.title)}</h4>
-            <p>${esc(card.body)}</p>
-          </div>`).join('')}
-      </div>
-    `,
-    dialysis: `
-      <div class="advanced-table-like">
-        <div class="advanced-table-row">
-          <div><strong>Intermittent HD</strong><span>Fast solute and fluid removal for stable patients.</span></div>
-          <div><strong>Best fit</strong><span>Hemodynamically stable, urgent but brief session acceptable.</span></div>
-          <div><strong>Watch for</strong><span>Hypotension and intolerance of large rapid shifts.</span></div>
-        </div>
-        <div class="advanced-table-row">
-          <div><strong>CRRT</strong><span>Slow continuous control of solute and volume in critical illness.</span></div>
-          <div><strong>Best fit</strong><span>Pressor-dependent, cerebral edema risk, or major volume sensitivity.</span></div>
-          <div><strong>Watch for</strong><span>Circuit clotting, electrolyte losses, access issues.</span></div>
-        </div>
-        <div class="advanced-table-row">
-          <div><strong>SLED</strong><span>Middle-ground approach when slower therapy is helpful but full CRRT is not required.</span></div>
-          <div><strong>Best fit</strong><span>Borderline hemodynamics, logistics-limited settings.</span></div>
-          <div><strong>Watch for</strong><span>Variable availability and schedule-dependent planning.</span></div>
-        </div>
-      </div>
-      <div class="advanced-grid-4">
-        ${topic.overviewCards.map(card => `
-          <div class="advanced-panel">
-            <h4>${esc(card.title)}</h4>
-            <p>${esc(card.body)}</p>
-          </div>`).join('')}
-      </div>
-    `,
-    transplant: `
-      <div class="advanced-grid-4">
-        ${topic.overviewCards.map(card => `
-          <div class="advanced-panel">
-            <h4>${esc(card.title)}</h4>
-            <p>${esc(card.body)}</p>
-          </div>`).join('')}
-      </div>
-      <div class="advanced-organ-grid">
-        ${topic.organCards.map(card => `
-          <div class="advanced-organ-card">
-            <h4>${esc(card.title)}</h4>
-            <p>${esc(card.body)}</p>
-          </div>`).join('')}
-      </div>
-      <div class="advanced-grid-4">
-        ${topic.drugCards.map(card => `
-          <div class="advanced-panel">
-            <h4>${esc(card.title)}</h4>
-            <p>${esc(card.body)}</p>
-          </div>`).join('')}
-      </div>
-      <div class="advanced-grid-4">
-        ${topic.timelineCards.map(card => `
-          <div class="advanced-panel">
-            <h4>${esc(card.title)}</h4>
-            <p>${esc(card.body)}</p>
-          </div>`).join('')}
-      </div>
-      <div class="advanced-pearl-box">
-        <h4>Red flags that should speed up your call to transplant</h4>
-        ${renderList(topic.redFlags)}
-      </div>
-      <p class="advanced-section-note">Fastest habit to build: whenever a transplant patient is discussed, ask what organ, when, what baseline function, and which immunosuppressants or prophylaxis are active right now.</p>
-    `
-  };
-  return special[topicKey] || '';
+/* ── Section renderers ── */
+
+function renderOverview(topic) {
+  let h = '';
+  topic.overviewCards.forEach(c => {
+    h += `<div class="at-item"><div class="at-item-title">${esc(c.title)}</div><div class="at-item-body">${esc(c.body)}</div></div>`;
+  });
+
+  if (currentTopic === 'mcs') {
+    h += `<div class="at-note amber">Mechanical support is easiest to learn when you anchor to chamber failure, perfusion goals, and the complication each device is most likely to create.</div>`;
+  }
+  if (currentTopic === 'vent') {
+    h += `<div class="at-note blue"><strong>Four bedside buckets:</strong> Initial setup · Oxygenation failure · CO₂ / ventilation failure · Liberation and readiness</div>`;
+  }
+  if (currentTopic === 'dialysis') {
+    h += `<div class="at-sub-label">Modality Comparison</div>
+      <table class="at-table"><thead><tr><th>Modality</th><th>Best Fit</th><th>Watch For</th></tr></thead><tbody>
+      <tr><td>Intermittent HD</td><td>Hemodynamically stable, urgent but brief session acceptable</td><td>Hypotension, intolerance of large rapid shifts</td></tr>
+      <tr><td>CRRT</td><td>Pressor-dependent, cerebral edema risk, major volume sensitivity</td><td>Circuit clotting, electrolyte losses, access issues</td></tr>
+      <tr><td>SLED</td><td>Borderline hemodynamics, logistics-limited settings</td><td>Variable availability, schedule-dependent planning</td></tr>
+      </tbody></table>`;
+  }
+  if (currentTopic === 'transplant') {
+    h += '<div class="at-sub-label">Organ-Specific Anchors</div>';
+    topic.organCards.forEach(c => {
+      h += `<div class="at-item"><div class="at-item-title">${esc(c.title)}</div><div class="at-item-body">${esc(c.body)}</div></div>`;
+    });
+    h += '<div class="at-sub-label">Timeline Risk Windows</div>';
+    topic.timelineCards.forEach(c => {
+      h += `<div class="at-item"><div class="at-item-title">${esc(c.title)}</div><div class="at-item-body">${esc(c.body)}</div></div>`;
+    });
+    h += '<div class="at-sub-label">Red Flags</div><div class="at-note red">';
+    topic.redFlags.forEach(f => {
+      h += `<div class="at-flag">⚠ ${esc(f)}</div>`;
+    });
+    h += '</div>';
+  }
+  return h;
 }
 
 function renderWorkflows(topic) {
-  return `
-    <div class="advanced-grid-3">
-      ${topic.workflows.map(flow => `
-        <div class="advanced-flow-card">
-          <h4>${esc(flow.title)}</h4>
-          <p>${esc(flow.body)}</p>
-        </div>
-      `).join('')}
-    </div>
-  `;
+  let h = '';
+  topic.workflows.forEach((w, i) => {
+    h += `<div class="at-item at-wf"><div class="at-item-title"><span class="at-step">${i + 1}</span>${esc(w.title)}</div><div class="at-item-body">${esc(w.body)}</div></div>`;
+  });
+  return h;
 }
 
 function renderEmergencies(topic) {
-  return `
-    <div class="advanced-grid-3">
-      ${topic.emergencies.map(item => `
-        <div class="advanced-panel advanced-emergency">
-          <h4>${esc(item.title)}</h4>
-          <p>${esc(item.body)}</p>
-          <div class="advanced-kv" style="margin-top:.75rem;">
-            <span class="advanced-kv-label">Key move</span>
-            <span>${esc(item.note)}</span>
-          </div>
-        </div>
-      `).join('')}
-    </div>
-  `;
+  let h = '';
+  topic.emergencies.forEach(e => {
+    h += `<div class="at-item at-emerg">
+      <div class="at-item-title">${esc(e.title)}</div>
+      <div class="at-item-body">${esc(e.body)}</div>
+      <div class="at-key-move"><span class="at-km-label">Key move</span> ${esc(e.note)}</div>
+    </div>`;
+  });
+  return h;
 }
 
 function renderPearls(topic) {
-  return `
-    <div class="advanced-grid-2">
-      <div class="advanced-pearl-box">
-        <h4>High-yield pearls</h4>
-        ${renderList(topic.pearls)}
-      </div>
-      <div class="advanced-panel">
-        <h4>How to use this page</h4>
-        <p>Review the workflow first, then the emergencies, then launch a related ICU simulation. The goal is to shorten the time between recognizing the problem and saying the right next step out loud.</p>
-      </div>
-    </div>
-  `;
+  let h = '<div class="at-pearl-list">';
+  topic.pearls.forEach(p => {
+    h += `<div class="at-pearl">💡 ${esc(p)}</div>`;
+  });
+  h += '</div>';
+  h += `<div class="at-note blue"><strong>How to use this page:</strong> Review workflows first, then emergencies, then launch a related ICU simulation. The goal is to shorten the time between recognizing the problem and saying the right next step out loud.</div>`;
+  return h;
 }
 
 function renderCases(topic) {
-  return `
-    <div class="advanced-cases">
-      ${topic.cases.map(item => `
-        <div class="advanced-case-card">
-          <div class="advanced-case-meta">
-            <span>${esc(item.level)}</span>
-            <span>${esc(item.focus)}</span>
-          </div>
-          <h4>${esc(item.title)}</h4>
-          <p>${esc(item.prompt)}</p>
-          <button class="advanced-action-btn" style="margin-top:.9rem;" onclick="launchAdvancedTopicSim('${esc(topic.title)}', '${esc(item.prompt)}')">Launch this case as a sim</button>
-        </div>
-      `).join('')}
-    </div>
-  `;
+  let h = '';
+  topic.cases.forEach(c => {
+    h += `<div class="at-item at-case">
+      <div class="at-case-meta"><span class="at-case-lvl">${esc(c.level)}</span><span class="at-case-foc">${esc(c.focus)}</span></div>
+      <div class="at-item-title">${esc(c.title)}</div>
+      <div class="at-item-body">${esc(c.prompt)}</div>
+      <button class="at-launch" onclick="launchAdvancedTopicSim('${esc(topic.title)}','${esc(c.prompt).replace(/'/g,"\\'")}')">⚡ Launch as simulation</button>
+    </div>`;
+  });
+  h += `<button class="at-launch at-launch-full" onclick="launchAdvancedTopicSim('${esc(topic.title)}','${esc(topic.simPrompt).replace(/'/g,"\\'")}')">⚡ Launch general ${esc(topic.title)} simulation</button>`;
+  return h;
 }
 
-function renderTabBody(topicKey, topic) {
-  switch (currentTab) {
-    case 'overview': return renderOverview(topicKey, topic);
-    case 'workflows': return renderWorkflows(topic);
-    case 'emergencies': return renderEmergencies(topic);
-    case 'pearls': return renderPearls(topic);
-    case 'cases': return renderCases(topic);
-    default: return '';
-  }
-}
-
-function renderDetail() {
-  const detail = document.getElementById('advanced-topic-detail');
-  if (!detail) return;
-  const topic = TOPICS[currentTopic];
-  detail.innerHTML = `
-    <div class="advanced-detail-head">
-      <div class="advanced-detail-title-wrap">
-        <div class="advanced-detail-icon">${topic.icon}</div>
-        <div class="advanced-detail-title">
-          <h3>${esc(topic.title)}</h3>
-          <p>${esc(topic.subtitle)}</p>
-        </div>
-      </div>
-      <button class="advanced-action-btn" onclick="launchAdvancedTopicSim('${esc(topic.title)}', '${esc(topic.simPrompt)}')">⚡ Launch related sim</button>
-    </div>
-    <div class="advanced-tabs">
-      ${TABS.map(([key, label]) => `<button class="advanced-tab${key === currentTab ? ' active' : ''}" onclick="setAdvancedTopicTab('${key}')">${esc(label)}</button>`).join('')}
-    </div>
-    <div class="advanced-tab-panel">${renderTabBody(currentTopic, topic)}</div>
-  `;
-}
+/* ── Public API ── */
 
 export function initAdvancedTopicsPage() {
-  renderTopicGrid();
-  renderDetail();
+  renderTopicNav();
+  renderSectionChips();
+  renderContent();
 }
 
-function selectAdvancedTopic(topicKey) {
-  currentTopic = topicKey;
-  currentTab = 'overview';
-  renderTopicGrid();
-  renderDetail();
+function selectAdvancedTopic(key) {
+  currentTopic = key;
+  currentSection = 'overview';
+  renderTopicNav();
+  renderSectionChips();
+  renderContent();
+  // scroll detail into view
+  const d = document.getElementById('at-detail');
+  if (d) d.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 window.selectAdvancedTopic = selectAdvancedTopic;
 
-function setAdvancedTopicTab(tabKey) {
-  currentTab = tabKey;
-  renderDetail();
+function setAdvancedTopicTab(key) {
+  currentSection = key;
+  renderSectionChips();
+  renderContent();
 }
 window.setAdvancedTopicTab = setAdvancedTopicTab;
 
 function launchAdvancedTopicSim(title, prompt) {
-  const fullPrompt = `${title}: ${prompt}`;
+  const fullPrompt = title + ': ' + prompt;
   ST.S.scType = 'genicu';
   ST.S.prompt = fullPrompt;
-
-  const promptBox = document.getElementById('custom-prompt');
-  if (promptBox) promptBox.value = fullPrompt;
-
+  const pb = document.getElementById('custom-prompt');
+  if (pb) pb.value = fullPrompt;
   document.querySelectorAll('[data-g="scType"]').forEach(btn => {
-    const isMatch = btn.dataset.v === 'genicu';
     btn.className = 'tb';
-    if (isMatch) btn.classList.add('a-genicu');
+    if (btn.dataset.v === 'genicu') btn.classList.add('a-genicu');
   });
-
   if (typeof window.refreshUI === 'function') window.refreshUI();
   if (typeof window.showPage === 'function') window.showPage('home');
-  setTimeout(() => {
-    if (typeof window.startSim === 'function') window.startSim();
-  }, 80);
+  setTimeout(() => { if (typeof window.startSim === 'function') window.startSim(); }, 80);
 }
 window.launchAdvancedTopicSim = launchAdvancedTopicSim;
