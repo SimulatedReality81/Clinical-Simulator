@@ -22,13 +22,14 @@ export function updIS(){document.getElementById('send-btn').disabled=ST.wait;doc
 
 // ── Page navigation ──
 export function showPage(id){
-  ['home','chat','stats','sims','library','advanced-topics','drugs','procedures'].forEach(p=>{document.getElementById(p).classList.remove('active');document.getElementById(p).style.display='none';});
+  ['landing','home','chat','stats','sims','library','advanced-topics','drugs','procedures'].forEach(p=>{document.getElementById(p).classList.remove('active');document.getElementById(p).style.display='none';});
   const el=document.getElementById(id);el.classList.add('active');el.style.display='flex';
   if(id==='stats')renderStats();
   if(id==='sims')renderSims();
   if(id==='advanced-topics')initAdvancedTopicsPage();
   if(id==='drugs')initDrugsPage();
   if(id==='procedures')initProcPage();
+  if(id==='library')showLibHub();
 }
 window.showPage=showPage;
 
@@ -39,9 +40,31 @@ export function goHome(){
   renderRef();
   const mp=document.getElementById('meds-panel');if(mp)mp.classList.add('mp-hide');
   const op=document.getElementById('orders-panel');if(op)op.classList.add('op-hide');
-  showPage('home');
+  showPage('landing');
 }
 window.goHome=goHome;
+
+function showLibHub(){
+  const hub=document.getElementById('lib-hub');
+  const sub=document.getElementById('lib-subview');
+  if(hub)hub.style.display='';
+  if(sub)sub.style.display='none';
+  document.querySelectorAll('#lib-subview .lib-section').forEach(s=>s.style.display='none');
+}
+window.showLibHub=showLibHub;
+
+function switchLibView(tab){
+  const hub=document.getElementById('lib-hub');
+  const sub=document.getElementById('lib-subview');
+  if(hub)hub.style.display='none';
+  if(sub)sub.style.display='';
+  document.querySelectorAll('#lib-subview .lib-section').forEach(s=>s.style.display='none');
+  const sec=document.getElementById('lib-sec-'+tab);
+  if(sec)sec.style.display='';
+  if(tab==='trials')window.renderTrialsIfNeeded&&window.renderTrialsIfNeeded();
+  if(tab==='mgh')window.renderMGHIfNeeded&&window.renderMGHIfNeeded();
+}
+window.switchLibView=switchLibView;
 
 // ── Action row ──
 export function showActionRow(btns){

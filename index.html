@@ -10,24 +10,36 @@
 <div class="ecg-line"></div>
 <div class="hl-tooltip" id="hl-tooltip"><button onclick="askAboutHL()">💬 Ask About</button><span class="hl-sep"></span><button onclick="highlightText()">🖍 Highlight</button></div>
 
-<!-- HOME -->
-<div class="page active" id="home" style="display:flex;flex-direction:row;min-height:100vh;overflow-y:auto;">
-  <!-- Left sidebar ribbon -->
-  <div class="home-sidebar">
-    <button class="sidebar-btn purple" onclick="showPage('stats')"><span class="sidebar-icon">📊</span><span class="sidebar-label">Scores</span></button>
-    <button class="sidebar-btn blue" onclick="showPage('sims')"><span class="sidebar-icon">📋</span><span class="sidebar-label">Sims</span></button>
-    <button class="sidebar-btn green" onclick="showPage('library')"><span class="sidebar-icon">📚</span><span class="sidebar-label">Library</span></button>
-    <button class="sidebar-btn red" onclick="showPage('advanced-topics')"><span class="sidebar-icon">🧠</span><span class="sidebar-label">Advanced Topics</span></button>
-    <button class="sidebar-btn cyan" onclick="showPage('drugs')"><span class="sidebar-icon">💊</span><span class="sidebar-label">Drugs</span></button>
-    <button class="sidebar-btn orange" onclick="showPage('procedures')"><span class="sidebar-icon">🔧</span><span class="sidebar-label">Procedures</span></button>
-  </div>
-  <!-- Main content area -->
-  <div class="home-main">
-    <div class="logo-area"><div class="logo-icon">⚡</div><h1 id="home-title">ACLS <span>Code Blue</span> Simulator</h1><p>AI-powered simulation for residency training</p></div>
-    <!-- Fact of the Day -->
-    <div class="fotd" id="fotd"><div class="fotd-lbl">📚 Clinical Fact of the Day <span class="fotd-cat" id="fotd-cat"></span></div><div class="fotd-txt" id="fotd-txt"></div><div style="display:flex;gap:.6rem;margin-top:.35rem;"><span class="fotd-more" id="fotd-read-more" onclick="showFOTDModal()">Read more</span><span class="fotd-more" onclick="nextFOTD()" style="color:var(--accent-amber);">🔄 Another fact</span></div></div>
+<!-- LANDING -->
+<div class="page active" id="landing" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;">
+  <div class="landing-container">
+    <div class="logo-area" style="margin-bottom:2rem;"><div class="logo-icon">⚡</div><h1 style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;">Clinical Training <span style="color:var(--accent-red);">Simulator</span></h1><p style="color:var(--text-secondary);font-size:.85rem;max-width:420px;margin:.4rem auto 0;">AI-powered simulation and education for medical professionals</p></div>
+    <div class="landing-cards">
+      <button class="landing-card lc-sim" onclick="showPage('home')">
+        <span class="lc-icon">🩺</span>
+        <span class="lc-title">Clinical Simulation</span>
+        <span class="lc-desc">Practice ACLS, rapid response, general IM, and ICU cases with AI-driven patient scenarios, med rec, and orders</span>
+      </button>
+      <button class="landing-card lc-lib" onclick="showPage('library')">
+        <span class="lc-icon">📚</span>
+        <span class="lc-title">Library</span>
+        <span class="lc-desc">Procedures, drugs, landmark trials, advanced topics, and clinical references — all in one place</span>
+      </button>
+    </div>
+    <div class="fotd" id="fotd" style="max-width:580px;width:100%;margin-top:1.5rem;"><div class="fotd-lbl">📚 Clinical Fact of the Day <span class="fotd-cat" id="fotd-cat"></span></div><div class="fotd-txt" id="fotd-txt"></div><div style="display:flex;gap:.6rem;margin-top:.35rem;"><span class="fotd-more" id="fotd-read-more" onclick="showFOTDModal()">Read more</span><span class="fotd-more" onclick="nextFOTD()" style="color:var(--accent-amber);">🔄 Another fact</span></div></div>
     <div class="fotd-overlay" id="fotd-overlay" onclick="if(event.target===this)closeFOTD()"><div class="fotd-modal" id="fotd-modal"><button class="fotd-close" onclick="closeFOTD()">✕</button><h3 id="fotd-modal-title"></h3><p id="fotd-modal-body"></p><p style="font-size:.7rem;color:var(--text-dim);margin-top:.75rem;">Source: Clinical Reference Library</p></div></div>
-    <!-- Simulation settings -->
+    <div style="display:flex;gap:.6rem;margin-top:1rem;">
+      <button class="landing-small-btn" onclick="showPage('stats')">📊 Scores</button>
+      <button class="landing-small-btn" onclick="showPage('sims')">📋 Recent Sims</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOME (Simulation Setup) -->
+<div class="page" id="home" style="display:none;flex-direction:column;min-height:100vh;overflow-y:auto;">
+  <div class="page-header"><button class="hdr-btn back-btn" onclick="goHome()">←</button><h2>🩺 Simulation Setup</h2></div>
+  <div class="home-main">
+    <div class="logo-area"><div class="logo-icon">⚡</div><h1 id="home-title">Clinical <span>Simulation</span></h1><p>Configure and launch your simulation</p></div>
     <div class="sp">
       <div class="sg"><span class="sl">Your Name</span><div class="niw"><span class="np">Dr.</span><input type="text" class="text-input" id="doc-name" placeholder="Enter your name"><button class="default-name-btn" id="default-name-btn" onclick="toggleDefaultName()" title="Save as default">☆ Default</button></div></div>
       <div class="sg"><span class="sl">Scenario Type</span><div class="tg"><button class="tb a-acls" data-g="scType" data-v="acls" onclick="tog(this)">ACLS / Code Blue<div class="td">Cardiac arrest</div></button><button class="tb" data-g="scType" data-v="rapid" onclick="tog(this)">Rapid Response<div class="td">Acute deterioration</div></button><button class="tb" data-g="scType" data-v="genim" onclick="tog(this)">General IM<div class="td">Clinical cases</div></button><button class="tb" data-g="scType" data-v="genicu" onclick="tog(this)">General ICU<div class="td">Critical care</div></button></div></div>
@@ -53,12 +65,9 @@
 <div class="page" id="chat">
   <div class="chat-header"><div class="ch-left"><button class="hdr-btn back-btn" onclick="goHome()">←</button><span class="ct" id="ct">Simulation</span><div class="ch-badges" id="ch-badges"></div></div><div class="ch-right"><button class="hdr-btn" style="border-color:var(--accent-green);color:var(--accent-green);" onclick="togRef()" id="ref-btn" title="Clinical Reference">📖 Ref</button><button class="hdr-btn orders-btn" onclick="togOrders()" id="orders-btn" style="display:none;">📋 Orders</button><button class="hdr-btn qs-btn" onclick="togQS()">📝 Debrief Q's</button><button class="hdr-btn end-btn" onclick="endEarly()" id="end-btn">⏹ End Now</button></div></div>
   <div class="utility-bar">
+    <button class="utility-pill green" onclick="showPage('library')">📚 Library</button>
     <button class="utility-pill purple" onclick="showPage('stats')">📊 Scores</button>
     <button class="utility-pill blue" onclick="showPage('sims')">📋 Recent Sims</button>
-    <button class="utility-pill green" onclick="showPage('library')">📚 Library</button>
-    <button class="utility-pill red" onclick="showPage('advanced-topics')">🧠 Advanced Topics</button>
-    <button class="utility-pill cyan" onclick="showPage('drugs')">💊 Drugs</button>
-    <button class="utility-pill orange" onclick="showPage('procedures')">🔧 Procedures</button>
   </div>
   <div class="theme-bar" id="theme-bar" style="gap:.8rem;"><span style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;">Display:</span><div style="display:flex;gap:.4rem;flex-wrap:nowrap;"><button class="tb" style="padding:.2rem .6rem;font-size:.68rem;min-width:55px;flex:0;white-space:nowrap;" onclick="togThemeBtn('dark')">🌙 Dark</button><button class="tb" style="padding:.2rem .6rem;font-size:.68rem;min-width:55px;flex:0;white-space:nowrap;" onclick="togThemeBtn('light')">☀️ Light</button><button class="tb" style="padding:.2rem .6rem;font-size:.68rem;min-width:55px;flex:0;white-space:nowrap;" onclick="togThemeBtn('auto')">🔆 Auto</button></div></div>
   <div class="progress-wrap" id="progress-wrap"><div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div><span class="progress-lbl" id="progress-lbl">0%</span></div>
@@ -104,50 +113,62 @@
 <div class="page" id="sims"><div class="page-header"><button class="hdr-btn back-btn" onclick="goHome()">←</button><h2>📋 Recent Simulations</h2></div><div class="page-content" id="sims-c"></div></div>
 
 
-<!-- LIBRARY -->
+<!-- LIBRARY HUB -->
 <div class="page" id="library"><div class="page-header"><button class="hdr-btn back-btn" onclick="goHome()">←</button><h2>📚 Library</h2></div>
-  <div class="lib-tabs" id="lib-tabs">
-    <button class="lib-tab active" onclick="switchLibTab(this,'docs')">📄 Institution Docs</button>
-    <button class="lib-tab" onclick="switchLibTab(this,'trials')">🏛️ Landmark Trials</button>
-    <button class="lib-tab" onclick="switchLibTab(this,'mgh')">📖 Clinical Reference</button>
-  </div>
   <div class="page-content" id="library-c">
-  <!-- Tab 1: Institution Docs -->
-  <div class="lib-section" id="lib-sec-docs">
-  <div class="lib-card"><h3>Institution-Specific Documents</h3><p style="font-size:.78rem;color:var(--text-secondary);margin-bottom:.75rem;line-height:1.5;">Upload your institution's protocols, antibiograms, clinical pathways, and other documents. These will be used to generate institution-specific simulations tailored to your practice environment.</p>
-  <div class="lib-upload-area" id="lib-upload-area" onclick="document.getElementById('lib-file-input').click()"><div class="upload-icon">📄</div><div class="upload-text">Click to upload files</div><div class="upload-hint">PDF, TXT, DOCX — max 5 files, 10MB each</div></div>
-  <input type="file" id="lib-file-input" accept=".pdf,.txt,.doc,.docx,.csv,.json" multiple style="display:none;" onchange="handleLibUpload(event)">
-  <div class="lib-file-list" id="lib-file-list"></div>
-  <button class="lib-sim-btn" id="lib-sim-btn" onclick="startLibSim()" disabled>⚡ Generate Institution-Specific Simulation</button>
-  <p style="font-size:.65rem;color:var(--text-dim);margin-top:.3rem;text-align:center;">Uploaded content is stored locally in your browser and used as context for simulations.</p>
-  </div>
-  </div>
+    <!-- Hub tiles -->
+    <div class="lib-hub" id="lib-hub">
+      <div class="lib-hub-grid">
+        <button class="lib-hub-tile" onclick="showPage('procedures')"><span class="lht-icon" style="background:rgba(249,115,22,.12);color:var(--accent-orange);">🔧</span><span class="lht-title">Procedures</span><span class="lht-desc">Step-by-step technique, indications, and AI practice chatbots</span></button>
+        <button class="lib-hub-tile" onclick="showPage('drugs')"><span class="lht-icon" style="background:rgba(6,182,212,.12);color:var(--accent-cyan);">💊</span><span class="lht-title">Drug Reference</span><span class="lht-desc">Mechanisms, dosing, side effects, and monitoring parameters</span></button>
+        <button class="lib-hub-tile" onclick="showPage('advanced-topics')"><span class="lht-icon" style="background:rgba(239,68,68,.12);color:var(--accent-red);">🧠</span><span class="lht-title">Advanced Topics</span><span class="lht-desc">MCS, ventilators, dialysis, transplant — with simulation access</span></button>
+        <button class="lib-hub-tile" onclick="switchLibView('trials')"><span class="lht-icon" style="background:rgba(168,85,247,.12);color:var(--accent-purple);">🏛️</span><span class="lht-title">Landmark Trials</span><span class="lht-desc">Key practice-changing trials across IM specialties</span></button>
+        <button class="lib-hub-tile" onclick="switchLibView('mgh')"><span class="lht-icon" style="background:rgba(34,197,94,.12);color:var(--accent-green);">📖</span><span class="lht-title">Clinical Reference</span><span class="lht-desc">Quick-reference summaries across 211 clinical topics</span></button>
+        <button class="lib-hub-tile" onclick="switchLibView('docs')"><span class="lht-icon" style="background:rgba(59,130,246,.12);color:var(--accent-blue);">📄</span><span class="lht-title">Institution Docs</span><span class="lht-desc">Upload protocols, antibiograms, and clinical pathways</span></button>
+      </div>
+    </div>
 
-  <!-- Tab 2: Landmark Trials -->
-  <div class="lib-section" id="lib-sec-trials" style="display:none;">
-  <div class="lib-card" style="max-width:800px;">
-    <h3>🏛️ Landmark IM Clinical Trials</h3>
-    <p style="font-size:.78rem;color:var(--text-secondary);margin-bottom:.75rem;line-height:1.5;">Key practice-changing trials across Internal Medicine specialties. Source: lmtrials.com</p>
-    <div class="trials-nav" id="trials-nav"></div>
-    <div class="trials-body" id="trials-body"></div>
-  </div>
-  </div>
+    <!-- Sub-views (hidden until selected from hub) -->
+    <div class="lib-subview" id="lib-subview" style="display:none;width:100%;max-width:860px;">
+      <button class="lib-back-hub" onclick="showLibHub()">← Back to Library</button>
 
-  <!-- Tab 3: MGH Reference -->
-  <div class="lib-section" id="lib-sec-mgh" style="display:none;">
-  <div class="lib-card" style="max-width:860px;">
-    <h3>📖 Clinical Reference</h3>
-    <p style="font-size:.78rem;color:var(--text-secondary);margin-bottom:.75rem;line-height:1.5;">Quick-reference summaries covering key clinical topics. AI-formatted for clarity.</p>
-    <input class="lib-mgh-search" id="lib-mgh-search" placeholder="Search all topics..." oninput="filterLibMGH()">
-    <div class="lib-mgh-nav" id="lib-mgh-nav"></div>
-    <div class="lib-mgh-body" id="lib-mgh-body"></div>
-  </div>
-  </div>
+      <!-- Landmark Trials -->
+      <div class="lib-section" id="lib-sec-trials" style="display:none;">
+      <div class="lib-card" style="max-width:800px;">
+        <h3>🏛️ Landmark IM Clinical Trials</h3>
+        <p style="font-size:.78rem;color:var(--text-secondary);margin-bottom:.75rem;line-height:1.5;">Key practice-changing trials across Internal Medicine specialties. Source: lmtrials.com</p>
+        <div class="trials-nav" id="trials-nav"></div>
+        <div class="trials-body" id="trials-body"></div>
+      </div>
+      </div>
+
+      <!-- Clinical Reference -->
+      <div class="lib-section" id="lib-sec-mgh" style="display:none;">
+      <div class="lib-card" style="max-width:860px;">
+        <h3>📖 Clinical Reference</h3>
+        <p style="font-size:.78rem;color:var(--text-secondary);margin-bottom:.75rem;line-height:1.5;">Quick-reference summaries covering key clinical topics. AI-formatted for clarity.</p>
+        <input class="lib-mgh-search" id="lib-mgh-search" placeholder="Search all topics..." oninput="filterLibMGH()">
+        <div class="lib-mgh-nav" id="lib-mgh-nav"></div>
+        <div class="lib-mgh-body" id="lib-mgh-body"></div>
+      </div>
+      </div>
+
+      <!-- Institution Docs -->
+      <div class="lib-section" id="lib-sec-docs" style="display:none;">
+      <div class="lib-card"><h3>Institution-Specific Documents</h3><p style="font-size:.78rem;color:var(--text-secondary);margin-bottom:.75rem;line-height:1.5;">Upload your institution's protocols, antibiograms, clinical pathways, and other documents. These will be used to generate institution-specific simulations tailored to your practice environment.</p>
+      <div class="lib-upload-area" id="lib-upload-area" onclick="document.getElementById('lib-file-input').click()"><div class="upload-icon">📄</div><div class="upload-text">Click to upload files</div><div class="upload-hint">PDF, TXT, DOCX — max 5 files, 10MB each</div></div>
+      <input type="file" id="lib-file-input" accept=".pdf,.txt,.doc,.docx,.csv,.json" multiple style="display:none;" onchange="handleLibUpload(event)">
+      <div class="lib-file-list" id="lib-file-list"></div>
+      <button class="lib-sim-btn" id="lib-sim-btn" onclick="startLibSim()" disabled>⚡ Generate Institution-Specific Simulation</button>
+      <p style="font-size:.65rem;color:var(--text-dim);margin-top:.3rem;text-align:center;">Uploaded content is stored locally in your browser and used as context for simulations.</p>
+      </div>
+      </div>
+    </div>
 </div></div>
 
 
 <!-- ADVANCED TOPICS -->
-<div class="page" id="advanced-topics"><div class="page-header"><button class="hdr-btn back-btn" onclick="goHome()">←</button><h2>🧠 Advanced Topics</h2></div>
+<div class="page" id="advanced-topics"><div class="page-header"><button class="hdr-btn back-btn" onclick="showPage('library')">←</button><h2>🧠 Advanced Topics</h2></div>
   <div class="ref-page-content" id="advanced-topics-page">
     <div class="ref-nav" id="at-nav"></div>
     <div id="at-sections"></div>
@@ -156,14 +177,14 @@
 </div>
 
 <!-- DRUGS -->
-<div class="page" id="drugs"><div class="page-header"><button class="hdr-btn back-btn" onclick="goHome()">←</button><h2>💊 Drug Reference</h2></div><div class="ref-page-content" id="drugs-c">
+<div class="page" id="drugs"><div class="page-header"><button class="hdr-btn back-btn" onclick="showPage('library')">←</button><h2>💊 Drug Reference</h2></div><div class="ref-page-content" id="drugs-c">
   <div class="ref-nav" id="drugs-nav"></div>
   <div id="drugs-subcats"></div>
   <div id="drugs-detail"></div>
 </div></div>
 
 <!-- PROCEDURES -->
-<div class="page" id="procedures"><div class="page-header"><button class="hdr-btn back-btn" onclick="goHome()">←</button><h2>🔧 Procedure Reference</h2></div><div class="ref-page-content" id="proc-c">
+<div class="page" id="procedures"><div class="page-header"><button class="hdr-btn back-btn" onclick="showPage('library')">←</button><h2>🔧 Procedure Reference</h2></div><div class="ref-page-content" id="proc-c">
   <div class="ref-nav" id="proc-nav"></div>
   <div id="proc-subcats"></div>
   <div id="proc-detail"></div>

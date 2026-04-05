@@ -12,17 +12,9 @@ let currentMGHChapter='All';
 
 export function initLibrary(){renderLibFiles();renderTrials();renderLibMGH();}
 
-// ── Tab switching ──
-function switchLibTab(btn,tab){
-  document.querySelectorAll('.lib-tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.lib-section').forEach(s=>s.style.display='none');
-  const sec=document.getElementById('lib-sec-'+tab);
-  if(sec)sec.style.display='';
-  if(tab==='trials')renderTrials();
-  if(tab==='mgh')renderLibMGH();
-}
-window.switchLibTab=switchLibTab;
+// ── Hub-compatible rendering hooks ──
+window.renderTrialsIfNeeded=function(){renderTrials();};
+window.renderMGHIfNeeded=function(){renderLibMGH();};
 
 // ── File Upload ──
 export function handleLibUpload(e){
