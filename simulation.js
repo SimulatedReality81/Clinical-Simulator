@@ -70,6 +70,7 @@ ${libInst}${cp?`## USER SCENARIO: "${cp}"\n`:'## Generate a UNIQUE random scenar
 
 ## DIFFICULTY: ${ez?'EASY':'HARD'}
 ${ez?`Straightforward. ${isA?'Standard rhythms: VFib, pVTach, PEA, Asystole.':'Clear presentations.'} Core decisions.`:`Full realism. 80% classic causes, 20% complex. Include vitals, rhythm descriptions, labs, PE, imaging. Team dynamics.`}
+**DIFFICULTY LOCK:** Do NOT adapt or soften the difficulty level at any point during the simulation, regardless of the user's performance. If the user struggles, do NOT simplify the case, reduce complexity, offer extra hints, or make the clinical picture more obvious. The selected difficulty must remain constant from start to finish. If the user needs help, they can use the "I'm not sure" option — that is the only mechanism for assistance.
 
 ## STAFF NAMES: Do NOT use names for any team members (nurses, respiratory therapists, pharmacy, etc.). Refer to them only by role: "the nurse," "the respiratory therapist," "the pharmacist," "the tech." Only the user (${nm}) should be addressed by name.
 

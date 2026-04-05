@@ -26,7 +26,7 @@
     <div class="logo-area"><div class="logo-icon">⚡</div><h1 id="home-title">ACLS <span>Code Blue</span> Simulator</h1><p>AI-powered simulation for residency training</p></div>
     <!-- Fact of the Day -->
     <div class="fotd" id="fotd"><div class="fotd-lbl">📚 Clinical Fact of the Day <span class="fotd-cat" id="fotd-cat"></span></div><div class="fotd-txt" id="fotd-txt"></div><div style="display:flex;gap:.6rem;margin-top:.35rem;"><span class="fotd-more" id="fotd-read-more" onclick="showFOTDModal()">Read more</span><span class="fotd-more" onclick="nextFOTD()" style="color:var(--accent-amber);">🔄 Another fact</span></div></div>
-    <div class="fotd-overlay" id="fotd-overlay" onclick="if(event.target===this)closeFOTD()"><div class="fotd-modal" id="fotd-modal"><button class="fotd-close" onclick="closeFOTD()">✕</button><h3 id="fotd-modal-title"></h3><p id="fotd-modal-body"></p><p style="font-size:.7rem;color:var(--text-dim);margin-top:.75rem;">Source: MGH Housestaff Manual 2023-2024</p></div></div>
+    <div class="fotd-overlay" id="fotd-overlay" onclick="if(event.target===this)closeFOTD()"><div class="fotd-modal" id="fotd-modal"><button class="fotd-close" onclick="closeFOTD()">✕</button><h3 id="fotd-modal-title"></h3><p id="fotd-modal-body"></p><p style="font-size:.7rem;color:var(--text-dim);margin-top:.75rem;">Source: Clinical Reference Library</p></div></div>
     <!-- Simulation settings -->
     <div class="sp">
       <div class="sg"><span class="sl">Your Name</span><div class="niw"><span class="np">Dr.</span><input type="text" class="text-input" id="doc-name" placeholder="Enter your name"><button class="default-name-btn" id="default-name-btn" onclick="toggleDefaultName()" title="Save as default">☆ Default</button></div></div>
@@ -51,7 +51,7 @@
 
 <!-- CHAT -->
 <div class="page" id="chat">
-  <div class="chat-header"><div class="ch-left"><button class="hdr-btn back-btn" onclick="goHome()">←</button><span class="ct" id="ct">Simulation</span><div class="ch-badges" id="ch-badges"></div></div><div class="ch-right"><button class="hdr-btn" style="border-color:var(--accent-green);color:var(--accent-green);" onclick="togRef()" id="ref-btn" title="MGH Reference">📖 MGH Ref</button><button class="hdr-btn orders-btn" onclick="togOrders()" id="orders-btn" style="display:none;">📋 Orders</button><button class="hdr-btn qs-btn" onclick="togQS()">📝 Debrief Q's</button><button class="hdr-btn end-btn" onclick="endEarly()" id="end-btn">⏹ End Now</button></div></div>
+  <div class="chat-header"><div class="ch-left"><button class="hdr-btn back-btn" onclick="goHome()">←</button><span class="ct" id="ct">Simulation</span><div class="ch-badges" id="ch-badges"></div></div><div class="ch-right"><button class="hdr-btn" style="border-color:var(--accent-green);color:var(--accent-green);" onclick="togRef()" id="ref-btn" title="Clinical Reference">📖 Ref</button><button class="hdr-btn orders-btn" onclick="togOrders()" id="orders-btn" style="display:none;">📋 Orders</button><button class="hdr-btn qs-btn" onclick="togQS()">📝 Debrief Q's</button><button class="hdr-btn end-btn" onclick="endEarly()" id="end-btn">⏹ End Now</button></div></div>
   <div class="utility-bar">
     <button class="utility-pill purple" onclick="showPage('stats')">📊 Scores</button>
     <button class="utility-pill blue" onclick="showPage('sims')">📋 Recent Sims</button>
@@ -93,7 +93,7 @@
     <div class="hist-panel hp-hide" id="hist-panel"><div class="hist-hdr"><h3>🕐 Historian</h3><span class="hist-time" id="hist-time">T+0:00</span></div><div class="hist-body" id="hist-body"></div></div>
     <div class="qs-panel qp-hide" id="qs-panel"><div class="qs-hdr"><h3>📝 Debrief Questions</h3><button class="qs-min" onclick="togQS()">✕</button></div><div class="qs-body" id="qs-body"><div class="qs-empty">Add questions during sim. Highlight AI text to ask about it. Submit after sim ends.</div></div><div class="hl-ref-banner" id="hl-banner" style="display:none;margin:0 .45rem;border-radius:6px;"><span>📎 </span><span class="hl-text" id="hl-banner-text"></span><button onclick="clearHLRef()">✕</button></div><div class="qs-ft"><div class="qs-ir"><input class="qs-i" id="qs-i" placeholder="Type a question..." onkeydown="if(event.key==='Enter')addQ();"><button class="qs-ab" id="qs-add-btn" onclick="addQ()">+</button></div><button class="qs-sb" id="qs-sb" onclick="submitQs()" disabled>Send to AI</button></div></div>
     <div class="orders-reopen-btn" id="orders-reopen-btn" style="display:none;" onclick="togOrders()">📋</div>
-    <div class="ref-panel rp-hide" id="ref-panel"><div class="ref-hdr"><h3>📖 MGH Whitebook</h3><button class="qs-min" onclick="togRef()">✕</button></div><input class="ref-search" id="ref-search" placeholder="Search all 211 topics..." oninput="filterRef()"><div style="padding:.2rem .4rem .1rem;font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--text-dim);" id="ref-filter-info">All topics (211)</div><div class="ref-body" id="ref-body"></div></div>
+    <div class="ref-panel rp-hide" id="ref-panel"><div class="ref-hdr"><h3>📖 Clinical Reference</h3><button class="qs-min" onclick="togRef()">✕</button></div><input class="ref-search" id="ref-search" placeholder="Search all 211 topics..." oninput="filterRef()"><div style="padding:.2rem .4rem .1rem;font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--text-dim);" id="ref-filter-info">All topics (211)</div><div class="ref-body" id="ref-body"></div></div>
   </div>
 </div>
 
@@ -109,7 +109,7 @@
   <div class="lib-tabs" id="lib-tabs">
     <button class="lib-tab active" onclick="switchLibTab(this,'docs')">📄 Institution Docs</button>
     <button class="lib-tab" onclick="switchLibTab(this,'trials')">🏛️ Landmark Trials</button>
-    <button class="lib-tab" onclick="switchLibTab(this,'mgh')">📖 MGH Reference</button>
+    <button class="lib-tab" onclick="switchLibTab(this,'mgh')">📖 Clinical Reference</button>
   </div>
   <div class="page-content" id="library-c">
   <!-- Tab 1: Institution Docs -->
@@ -136,8 +136,8 @@
   <!-- Tab 3: MGH Reference -->
   <div class="lib-section" id="lib-sec-mgh" style="display:none;">
   <div class="lib-card" style="max-width:860px;">
-    <h3>📖 MGH Whitebook Reference</h3>
-    <p style="font-size:.78rem;color:var(--text-secondary);margin-bottom:.75rem;line-height:1.5;">Quick-reference summaries from MGH Housestaff Manual 2023-2024. AI-formatted for clarity.</p>
+    <h3>📖 Clinical Reference</h3>
+    <p style="font-size:.78rem;color:var(--text-secondary);margin-bottom:.75rem;line-height:1.5;">Quick-reference summaries covering key clinical topics. AI-formatted for clarity.</p>
     <input class="lib-mgh-search" id="lib-mgh-search" placeholder="Search all topics..." oninput="filterLibMGH()">
     <div class="lib-mgh-nav" id="lib-mgh-nav"></div>
     <div class="lib-mgh-body" id="lib-mgh-body"></div>

@@ -1,10 +1,10 @@
 // ══════════════════════════════════════════════════════════════
-// LIBRARY — File upload, landmark trials, MGH reference
+// LIBRARY — File upload, landmark trials, clinical reference
 // ══════════════════════════════════════════════════════════════
 import * as ST from './state.js';
 import { esc, showPage } from './ui.js';
 import { LANDMARK_TRIALS } from './data_trials.js';
-import { MGH_REF_ALL } from './data_references.js';
+import { CLIN_REF_ALL } from './data_references.js';
 
 let libFiles=JSON.parse(localStorage.getItem('lib_files')||'[]');
 let currentTrialSpecialty='Cardiology';
@@ -188,7 +188,7 @@ function renderLibMGH(){
   const searchVal=(document.getElementById('lib-mgh-search')?.value||'').toLowerCase().trim();
   
   // Get unique chapters
-  const chapters=['All',...new Set(MGH_REF_ALL.map(r=>r.chapter))];
+  const chapters=['All',...new Set(CLIN_REF_ALL.map(r=>r.chapter))];
   nav.innerHTML=chapters.map(ch=>{
     const cls=ch===currentMGHChapter?'trials-nav-btn active':'trials-nav-btn';
     const color=ch!=='All'?getChapterColor(ch):'';
@@ -197,7 +197,7 @@ function renderLibMGH(){
   }).join('');
 
   // Filter
-  let refs=MGH_REF_ALL;
+  let refs=CLIN_REF_ALL;
   if(currentMGHChapter!=='All'){
     refs=refs.filter(r=>r.chapter===currentMGHChapter);
   }
@@ -219,7 +219,7 @@ function renderLibMGH(){
           </div>
         </div>
         <div class="mgh-lib-body"><div class="mgh-lib-content">${formattedContent}</div>
-          <div style="font-size:.55rem;color:var(--text-dim);font-style:italic;margin-top:.5rem;">Source: MGH Housestaff Manual 2023-2024, ${esc(r.page)}</div>
+          <div style="font-size:.55rem;color:var(--text-dim);font-style:italic;margin-top:.5rem;">Clinical Reference, ${esc(r.page)}</div>
         </div>
       </div>`;
     }).join('');

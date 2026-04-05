@@ -224,6 +224,10 @@ function renderContent() {
 
 /* ── Section renderers ── */
 
+function simLaunchBtn(topic) {
+  return `<button class="at-launch at-launch-full" onclick="launchAdvancedTopicSim('${esc(topic.title)}','${esc(topic.simPrompt).replace(/'/g,"\\'")}')">⚡ Practice ${esc(topic.title)} in a simulation</button>`;
+}
+
 function renderOverview(topic) {
   let h = '';
   topic.overviewCards.forEach(c => {
@@ -259,6 +263,7 @@ function renderOverview(topic) {
     });
     h += '</div>';
   }
+  h += simLaunchBtn(topic);
   return h;
 }
 
@@ -267,6 +272,7 @@ function renderWorkflows(topic) {
   topic.workflows.forEach((w, i) => {
     h += `<div class="at-item at-wf"><div class="at-item-title"><span class="at-step">${i + 1}</span>${esc(w.title)}</div><div class="at-item-body">${esc(w.body)}</div></div>`;
   });
+  h += simLaunchBtn(topic);
   return h;
 }
 
@@ -279,6 +285,7 @@ function renderEmergencies(topic) {
       <div class="at-key-move"><span class="at-km-label">Key move</span> ${esc(e.note)}</div>
     </div>`;
   });
+  h += simLaunchBtn(topic);
   return h;
 }
 
@@ -289,6 +296,7 @@ function renderPearls(topic) {
   });
   h += '</div>';
   h += `<div class="at-note blue"><strong>How to use this page:</strong> Review workflows first, then emergencies, then launch a related ICU simulation. The goal is to shorten the time between recognizing the problem and saying the right next step out loud.</div>`;
+  h += simLaunchBtn(topic);
   return h;
 }
 

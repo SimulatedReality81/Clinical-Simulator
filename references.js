@@ -1,7 +1,7 @@
 // ══════════════════════════════════════════════════════════════
-// REFERENCES — MGH Whitebook reference panel
+// REFERENCES — Clinical reference panel (in-simulation)
 // ══════════════════════════════════════════════════════════════
-import { MGH_REF_ALL } from './data_references.js';
+import { CLIN_REF_ALL } from './data_references.js';
 import { esc } from './ui.js';
 import * as ST from './state.js';
 
@@ -54,11 +54,11 @@ export function renderRef(){
   const searchVal=document.getElementById('ref-search')?document.getElementById('ref-search').value.toLowerCase().trim():'';
   let toShow;
   if(searchVal.length>0){
-    toShow=MGH_REF_ALL.filter(r=>r.topic.toLowerCase().includes(searchVal)||r.chapter.toLowerCase().includes(searchVal)||r.content.toLowerCase().includes(searchVal));
+    toShow=CLIN_REF_ALL.filter(r=>r.topic.toLowerCase().includes(searchVal)||r.chapter.toLowerCase().includes(searchVal)||r.content.toLowerCase().includes(searchVal));
   } else if(ST.currentCaseTopics.length>0){
-    toShow=MGH_REF_ALL.filter(r=>{const tl=r.topic.toLowerCase(),cl=r.chapter.toLowerCase();return ST.currentCaseTopics.some(kw=>tl.includes(kw.toLowerCase())||cl.includes(kw.toLowerCase()));});
-    if(toShow.length===0)toShow=MGH_REF_ALL;
-  } else {toShow=MGH_REF_ALL;}
+    toShow=CLIN_REF_ALL.filter(r=>{const tl=r.topic.toLowerCase(),cl=r.chapter.toLowerCase();return ST.currentCaseTopics.some(kw=>tl.includes(kw.toLowerCase())||cl.includes(kw.toLowerCase()));});
+    if(toShow.length===0)toShow=CLIN_REF_ALL;
+  } else {toShow=CLIN_REF_ALL;}
   const inCase=ST.currentCaseTopics.length>0&&searchVal.length===0;
   if(inCase&&toShow.length>5)toShow=toShow.slice(0,5);
   const headerEl=document.getElementById('ref-filter-info');
@@ -82,7 +82,7 @@ export function renderRef(){
       .replace(/^[•\-]\s*(.+)$/gm,'<span style="display:block;padding-left:.5rem;border-left:2px solid var(--accent-blue);margin:.1rem 0;font-size:.66rem;">$1</span>')
       .replace(/^(\d+)[.)]\s*(.+)$/gm,'<span style="display:block;padding-left:.5rem;border-left:2px solid var(--accent-purple);margin:.1rem 0;font-size:.66rem;"><strong>$1.</strong> $2</span>')
       .replace(/\n/g,'<br>');
-    return `<div class="ref-item" data-topic="${esc(r.topic).toLowerCase()}"><div class="ref-item-hdr" onclick="togRefItem(this)"><span style="font-size:.5rem;color:${color};font-weight:600;margin-right:.25rem;font-family:'JetBrains Mono',monospace;">[${esc(r.chapter)}]</span>${esc(r.topic)} <span style="font-size:.6rem;color:var(--text-dim)">▶</span></div><div class="ref-item-body"><div style="line-height:1.55;font-size:.67rem;">${formattedContent}</div><div class="ref-item-src">Source: MGH Housestaff Manual 2023-2024, ${r.page}</div></div></div>`;
+    return `<div class="ref-item" data-topic="${esc(r.topic).toLowerCase()}"><div class="ref-item-hdr" onclick="togRefItem(this)"><span style="font-size:.5rem;color:${color};font-weight:600;margin-right:.25rem;font-family:'JetBrains Mono',monospace;">[${esc(r.chapter)}]</span>${esc(r.topic)} <span style="font-size:.6rem;color:var(--text-dim)">▶</span></div><div class="ref-item-body"><div style="line-height:1.55;font-size:.67rem;">${formattedContent}</div><div class="ref-item-src">Clinical Reference, ${r.page}</div></div></div>`;
   }).join('');
 }
 

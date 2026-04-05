@@ -1,9 +1,9 @@
 // ══════════════════════════════════════════════════════════════
 // DATA_REFERENCES — AI-Written Clinical Mini-Textbook
-// Organized by MGH Whitebook sections, rewritten for clarity
+// Organized by clinical sections, rewritten for clarity
 // ══════════════════════════════════════════════════════════════
 
-export const MGH_REF_ALL=[
+export const CLIN_REF_ALL=[
 
 // ═══════════════════════════════════════
 // CARDIOLOGY
@@ -2021,7 +2021,7 @@ WORKUP APPROACH
 
 DRUG FEVER: Diagnosis of exclusion. Common culprits: Antibiotics (beta-lactams, sulfonamides), anticonvulsants, allopurinol, heparin. Usually resolves 48-72h after drug discontinuation.`},
 
-{topic:"Rare Diseases at MGH",chapter:"Infectious Disease",page:"p.120",content:`This section covers institution-specific infection patterns and endemic infections. Key principles for any institution:
+{topic:"Endemic & Region-Specific Infections",chapter:"Infectious Disease",page:"p.120",content:`This section covers institution-specific infection patterns and endemic infections. Key principles for any institution:
 - Know your local antibiogram (resistance patterns guide empiric therapy)
 - Endemic fungi by region: Histoplasmosis (Ohio/Mississippi River Valley), Coccidioidomycosis (Southwest US), Blastomycosis (Great Lakes, Ohio/Mississippi)
 - Consider travel/exposure history for every patient with unexplained fever
@@ -2902,6 +2902,6 @@ GLYCEMIC MONITORING: Inpatient glucose targets 140-180 mg/dL. Point-of-care gluc
 {topic:"Microaggressions/Bias, Patient-Directed Discharge, ICE",chapter:"Logistics",page:"p.228",content:`ADDRESSING BIAS: Name the behavior, not the person. Document objectively. Support targeted team members. Involve patient relations/social work if needed. Debrief as a team. Hospital policy should protect staff from harassment while maintaining patient care standards.
 PATIENT-DIRECTED DISCHARGE (Against Medical Advice): Decision-making capacity assessment required. Informed refusal: Explain risks, document understanding, provide safe discharge plan regardless (prescriptions, follow-up, return precautions). Do NOT use AMA as punitive measure. Insurance coverage is NOT automatically denied for AMA discharges (common myth).`},
 
-{topic:"MGH Directory",chapter:"Logistics",page:"p.229",content:`This section would contain institution-specific phone numbers, paging directories, and contact information. In any hospital setting, know how to reach: Rapid Response team, Code Blue team, MICU/SICU, pharmacy, blood bank, radiology (for urgent studies), nursing supervisor, chaplaincy, social work, interpreter services, patient relations, security, transfer center.`}
+{topic:"Hospital Directory & Key Contacts",chapter:"Logistics",page:"p.229",content:`This section covers essential phone numbers, paging directories, and contact information. In any hospital setting, know how to reach: Rapid Response team, Code Blue team, MICU/SICU, pharmacy, blood bank, radiology (for urgent studies), nursing supervisor, chaplaincy, social work, interpreter services, patient relations, security, transfer center.`}
 
 ];
